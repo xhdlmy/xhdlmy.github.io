@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="XL&#39;Blogs">
 <meta property="og:description" content="互联网的工作原理互联网价值就在于信息互通，便于各方学术交流、思想碰撞。但既然要交流，就得像都能理解的同一种约定的信息媒介（语言、文字等），那么在互联网中同样的也需要双方都能理解的媒介，这就是互联网协议————“不以规矩，无以成方圆” 。 阮一峰的日志：互联网入门（一）阮一峰的日志：互联网入门（二） 互联网传输协议分层——如何传输数据？万丈高楼平地起，互联网协议并不是一开始就像现如今般完善。例如我们">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-09-07T09:42:59.396Z">
+<meta property="og:updated_time" content="2018-09-13T03:04:15.912Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="1.互联网协议">
 <meta name="twitter:description" content="互联网的工作原理互联网价值就在于信息互通，便于各方学术交流、思想碰撞。但既然要交流，就得像都能理解的同一种约定的信息媒介（语言、文字等），那么在互联网中同样的也需要双方都能理解的媒介，这就是互联网协议————“不以规矩，无以成方圆” 。 阮一峰的日志：互联网入门（一）阮一峰的日志：互联网入门（二） 互联网传输协议分层——如何传输数据？万丈高楼平地起，互联网协议并不是一开始就像现如今般完善。例如我们">
@@ -462,10 +462,18 @@
 <h3 id="TCP协议"><a href="#TCP协议" class="headerlink" title="TCP协议"></a>TCP协议</h3><p>简单点，就是为了解决 UDP 协议的问题。</p>
 <p>这个协议非常复杂，但可以近似认为，它就是有确认机制的UDP协议，每发出一个数据包都要求确认。如果有一个数据包遗失，就收不到确认，发出方就知道有必要重发这个数据包了。</p>
 <p><strong>三次握手机制</strong></p>
-<h2 id="应用层"><a href="#应用层" class="headerlink" title="应用层"></a>应用层</h2><p>应用程序收到”传输层”的数据，接下来就要进行解读。由于互联网是开放架构，数据来源五花八门，必须事先规定好格式，否则根本无法解读。</p>
+<h3 id="应用层"><a href="#应用层" class="headerlink" title="应用层"></a>应用层</h3><p>应用程序收到”传输层”的数据，接下来就要进行解读。由于互联网是开放架构，数据来源五花八门，必须事先规定好格式，否则根本无法解读。</p>
 <p>“应用层”的作用，就是规定应用程序的数据格式。</p>
 <p>举例来说，TCP协议可以为各种各样的程序传递数据，比如Email、WWW、FTP等等。那么，必须有不同协议规定电子邮件、网页、FTP数据的格式，这些应用程序协议就构成了”应用层”。</p>
 <p>这是最高的一层，直接面对用户。它的数据就放在TCP数据包的”数据”部分。</p>
+<h1 id="Socket-套接字"><a href="#Socket-套接字" class="headerlink" title="Socket 套接字"></a>Socket 套接字</h1><blockquote>
+<p>Socket用于描述IP地址和端口，是通信链的句柄，通过 ip + port 能找到通信的双方，这就是 IP/TCP 传输层协议。应用程序可以通过Socket向网络发出请求或者应答网络请求。</p>
+</blockquote>
+<p>目前较为流行的网络编程模型是客户端/服务器（C/S）结构。即通信双方一方作为服务器等待客户提出请求并予以响应。客户则在需要服务时向服务器提出申请。服务器一般作为守护进程始终运行，监听网络端口，一旦有客户请求，就会启动一个服务进程来响应该客户，同时自己继续监听服务端口，使后来的客户也能及时得到服务。</p>
+<p><a href="https://blog.csdn.net/say_from_wen/article/details/78719396" target="_blank" rel="noopener">Socket通信</a></p>
+<blockquote>
+<p>Java 中提供了 Socket  ServerSocket 等类来建立符合 TCP 协议的 Socket 通道。</p>
+</blockquote>
 
       
     </div>
@@ -502,8 +510,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/09/10/HTTP协议 网络请求过程理解/" rel="prev" title="2.HTTP协议">
-                2.HTTP协议 <i class="fa fa-chevron-right"></i>
+              <a href="/2018/09/10/HTTP协议 网络请求过程理解/" rel="prev" title="2.HTTP协议 OkHttp">
+                2.HTTP协议 OkHttp <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -585,7 +593,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -640,7 +648,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#互联网的工作原理"><span class="nav-number">1.</span> <span class="nav-text">互联网的工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#互联网传输协议分层——如何传输数据？"><span class="nav-number">1.1.</span> <span class="nav-text">互联网传输协议分层——如何传输数据？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#物理层-Physical-Layer"><span class="nav-number">1.2.</span> <span class="nav-text">物理层 Physical Layer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#链接层-Linked-Layer"><span class="nav-number">1.3.</span> <span class="nav-text">链接层 Linked Layer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络层-IP协议"><span class="nav-number">1.4.</span> <span class="nav-text">网络层 IP协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#IPv4"><span class="nav-number">1.4.1.</span> <span class="nav-text">IPv4</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#传输层-TCP协议"><span class="nav-number">1.5.</span> <span class="nav-text">传输层 TCP协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#UDP协议"><span class="nav-number">1.5.1.</span> <span class="nav-text">UDP协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP协议"><span class="nav-number">1.5.2.</span> <span class="nav-text">TCP协议</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#应用层"><span class="nav-number">1.6.</span> <span class="nav-text">应用层</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#互联网的工作原理"><span class="nav-number">1.</span> <span class="nav-text">互联网的工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#互联网传输协议分层——如何传输数据？"><span class="nav-number">1.1.</span> <span class="nav-text">互联网传输协议分层——如何传输数据？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#物理层-Physical-Layer"><span class="nav-number">1.2.</span> <span class="nav-text">物理层 Physical Layer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#链接层-Linked-Layer"><span class="nav-number">1.3.</span> <span class="nav-text">链接层 Linked Layer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络层-IP协议"><span class="nav-number">1.4.</span> <span class="nav-text">网络层 IP协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#IPv4"><span class="nav-number">1.4.1.</span> <span class="nav-text">IPv4</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#传输层-TCP协议"><span class="nav-number">1.5.</span> <span class="nav-text">传输层 TCP协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#UDP协议"><span class="nav-number">1.5.1.</span> <span class="nav-text">UDP协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP协议"><span class="nav-number">1.5.2.</span> <span class="nav-text">TCP协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#应用层"><span class="nav-number">1.5.3.</span> <span class="nav-text">应用层</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Socket-套接字"><span class="nav-number">2.</span> <span class="nav-text">Socket 套接字</span></a></li></ol></div>
             
 
           </div>

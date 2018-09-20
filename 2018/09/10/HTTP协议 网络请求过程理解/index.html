@@ -79,18 +79,21 @@
 
 
 
-<meta name="description" content="通过对开源项目在 HTTP 传输过程中的分析：需要对比，思考；如果是自己，会怎么做？有思考，就有提高。  Http 协议">
+<meta name="description" content="通过对开源项目在 HTTP 传输过程中的分析：需要对比，思考；如果是自己，会怎么做？有思考，就有提高。   如何构造 Request ？ 请求行 HTTP1.0 or HTTP2.0 Method GET or POST Url Header Body CacheControl   如何构造 Response ? 如何执行请求，将 Request 转换成 Response？  OkHttp拆轮子">
 <meta name="keywords" content="互联网协议">
 <meta property="og:type" content="article">
-<meta property="og:title" content="2.HTTP协议">
+<meta property="og:title" content="2.HTTP协议 OkHttp">
 <meta property="og:url" content="https://xhdlmy.github.io/2018/09/10/HTTP协议 网络请求过程理解/index.html">
 <meta property="og:site_name" content="XL&#39;Blogs">
-<meta property="og:description" content="通过对开源项目在 HTTP 传输过程中的分析：需要对比，思考；如果是自己，会怎么做？有思考，就有提高。  Http 协议">
+<meta property="og:description" content="通过对开源项目在 HTTP 传输过程中的分析：需要对比，思考；如果是自己，会怎么做？有思考，就有提高。   如何构造 Request ？ 请求行 HTTP1.0 or HTTP2.0 Method GET or POST Url Header Body CacheControl   如何构造 Response ? 如何执行请求，将 Request 转换成 Response？  OkHttp拆轮子">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-09-11T02:08:21.666Z">
+<meta property="og:image" content="https://xhdlmy.github.io/img/okHttp_flow_form.png">
+<meta property="og:image" content="https://xhdlmy.github.io/2018/09/10/HTTP协议%20网络请求过程理解/img/MIME_type.png">
+<meta property="og:updated_time" content="2018-09-20T06:58:18.517Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="2.HTTP协议">
-<meta name="twitter:description" content="通过对开源项目在 HTTP 传输过程中的分析：需要对比，思考；如果是自己，会怎么做？有思考，就有提高。  Http 协议">
+<meta name="twitter:title" content="2.HTTP协议 OkHttp">
+<meta name="twitter:description" content="通过对开源项目在 HTTP 传输过程中的分析：需要对比，思考；如果是自己，会怎么做？有思考，就有提高。   如何构造 Request ？ 请求行 HTTP1.0 or HTTP2.0 Method GET or POST Url Header Body CacheControl   如何构造 Response ? 如何执行请求，将 Request 转换成 Response？  OkHttp拆轮子">
+<meta name="twitter:image" content="https://xhdlmy.github.io/img/okHttp_flow_form.png">
 
 
 
@@ -126,7 +129,7 @@
 
 
 
-  <title>2.HTTP协议 | XL'Blogs</title>
+  <title>2.HTTP协议 OkHttp | XL'Blogs</title>
   
 
 
@@ -310,7 +313,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">2.HTTP协议</h1>
+          <h1 class="post-title" itemprop="name headline">2.HTTP协议 OkHttp</h1>
         
 
         <div class="post-meta">
@@ -385,7 +388,117 @@
         <blockquote>
 <p>通过对开源项目在 HTTP 传输过程中的分析：需要对比，思考；如果是自己，会怎么做？有思考，就有提高。</p>
 </blockquote>
-<h2 id="Http-协议"><a href="#Http-协议" class="headerlink" title="Http 协议"></a>Http 协议</h2>
+<ul>
+<li>如何构造 Request ？<ul>
+<li>请求行 HTTP1.0 or HTTP2.0</li>
+<li>Method GET or POST</li>
+<li>Url</li>
+<li>Header</li>
+<li>Body</li>
+<li>CacheControl</li>
+</ul>
+</li>
+<li>如何构造 Response ?</li>
+<li>如何执行请求，将 Request 转换成 Response？</li>
+</ul>
+<h1 id="OkHttp"><a href="#OkHttp" class="headerlink" title="OkHttp"></a>OkHttp</h1><p><a href="https://blog.piasy.com/2016/07/11/Understand-OkHttp/" target="_blank" rel="noopener">拆轮子系列：拆OkHttp</a></p>
+<p><img src="/img/okHttp_flow_form.png" alt="OkHttp流程图"></p>
+<p>OkHttp 发送请求的代码：</p>
+<pre><code>Response response = client.newCall(request).execute();
+</code></pre><p>OkHttpClient 实现了 Call 接口 newCall(Request request) 方法，可以将构造好的 Request 通过 RealCall 的 execute() 方法来执行。</p>
+<h2 id="Request"><a href="#Request" class="headerlink" title="Request"></a>Request</h2><pre><code>HttpUrl url
+String method
+Heards hearders
+RequestBody    body
+
+Request request = new Request.Builder()
+  .url(url) 
+  .post(body)
+  .build();
+</code></pre><p>1 HttpUrl</p>
+<p>作用：就是将 url 字符串变成 HttpUrl 的 scheme host port 等可读懂的变量，这样 OkHttp 就能明白 Request 请求。</p>
+<pre><code>// 解析出 scheme host port 等参数
+HttpUrl.parse(String input)
+
+// build() 方法就是根据 parse 得到的参数来组建 HttpUrl 的过程
+HttpUrl url = new HttpUrl.Builder()
+    .scheme(&quot;https&quot;)
+    .host(&quot;www.google.com&quot;)
+    .addPathSegment(&quot;search&quot;)
+    .addQueryParameter(&quot;q&quot;, &quot;polar bears&quot;)
+    .build();
+</code></pre><p>2 Heards</p>
+<pre><code>String[] namesAndValues 
+</code></pre><p>作用：提供一组长度为偶数的数组，name value name value 排列，在进行请求时转化成符合 HTTP 规则的一行行请求头。</p>
+<p>3 RequestBody </p>
+<pre><code>new RequestBody() {
+  @Override public @Nullable MediaType contentType() {
+    return contentType;
+  }
+
+  @Override public long contentLength() {
+    return byteCount;
+  }
+
+  @Override public void writeTo(BufferedSink sink) throws IOException {
+    sink.write(content, offset, byteCount);
+  }
+}
+</code></pre><p>作用：提供的请求信息有 MediaType ContentLength，IO处理Body内容 content。</p>
+<p>4 CacheControl</p>
+<p>A Cache-Control header with cache directives from a server or client.</p>
+<h3 id="ContentType"><a href="#ContentType" class="headerlink" title="ContentType"></a>ContentType</h3><p><a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Basics_of_HTTP/MIME_types" target="_blank" rel="noopener">MIME类型</a></p>
+<p>浏览器通常使用MIME类型（而不是文件扩展名）来确定如何处理文档；因此服务器设置正确以将正确的MIME类型附加到响应对象的头部是非常重要的。</p>
+<p>语法格式：type/subtype</p>
+<p><img src="img/MIME_type.png" alt=""></p>
+<p>我使用 Fiddler 来监控我的 APP 请求：</p>
+<pre><code>POST http://192.168.1.104/API/L_20000.ashx HTTP/1.1
+
+Content-Type: application/octet-stream
+Content-Length: 329
+Host: 192.168.1.104
+Connection: Keep-Alive
+Accept-Encoding: gzip
+User-Agent: okhttp/3.10.0
+</code></pre><blockquote>
+<p>根据</p>
+</blockquote>
+<p>OkHttp 请求时候构造的 RequestBody</p>
+<pre><code>RequestBody.create(MediaType.parse(&quot;application/octet-stream&quot;), bytes);
+</code></pre><p>如果是上传图片时：</p>
+<pre><code>POST http://192.168.1.104/API/L_U10000.ashx?sn=201809201127515038971&amp;rtype=30301 HTTP/1.1
+Content-Type: multipart/form-data; boundary=b0c87a60-d0d4-4e19-8092-702085f07f03
+Content-Length: 1188456
+Host: 192.168.1.104
+Connection: Keep-Alive
+Accept-Encoding: gzip
+Cookie: __bhticket__=07D551E0694CD2304F45DCDFD63B796BEB001BF6DC68642360DCE0211A7C0019F814F8C86C87EAC4AE4AFF41D55713AF952D9F676CA9CC1D7DBC2E6E5F61206DDFDE267F8B21A9535B51603D462A872B8C4267C04B98CFFECB56B96697D9907CF593F848104A50E954A8BB55D88D6092E2BB368558494C4A71D38D8314B0443C2958A04F
+User-Agent: okhttp/3.10.0
+
+--b0c87a60-d0d4-4e19-8092-702085f07f03
+Content-Disposition: form-data; name=&quot;file0&quot;;filename=&quot;20180920112747.jpeg&quot;
+Content-Transfer-Encoding: binary
+Content-Type: image/jpeg
+Content-Length: 630322
+...（二进制数据）
+
+--b0c87a60-d0d4-4e19-8092-702085f07f03
+Content-Disposition: form-data; name=&quot;file1&quot;;filename=&quot;20180920112578.jpeg&quot;
+Content-Transfer-Encoding: binary
+Content-Type: image/jpeg
+Content-Length: 710875
+...（二进制数据）
+</code></pre><blockquote>
+<p>multipart/form-data 可用于HTML表单从浏览器发送信息给服务器。作为多部分文档格式，它由边界线 boundary（一个由’–’开始的字符串）划分出的不同部分组成。每一部分有自己的实体，以及自己的 HTTP 请求头，Content-Disposition和 Content-Type 用于文件上传领域，最常用的 (Content-Length 因为边界线作为分隔符而被忽略）。</p>
+</blockquote>
+<p>写入的代码如下：</p>
+<pre><code>Map&lt;String, RequestBody&gt; images = new HashMap&lt;String, RequestBody&gt;();
+for(int i = 0; i &lt; files.size(); i++){
+    File file = files.get(i);
+    // 重点是如下代码：不要 &quot;name=\&quot;&quot; + &quot;file&quot; + i + &quot;\&quot;;filename=\&quot;&quot; + file.getName() , 服务器解析会出现错误 name=&quot;name=&quot;file1&quot;
+    images.put(&quot;file&quot; + i + &quot;\&quot;;filename=\&quot;&quot; + file.getName(), RequestBody.create(Constant.MEDIA_JPEG, file));
+}
+</code></pre>
       
     </div>
     
@@ -508,7 +621,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -563,7 +676,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Http-协议"><span class="nav-number">1.</span> <span class="nav-text">Http 协议</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#OkHttp"><span class="nav-number">1.</span> <span class="nav-text">OkHttp</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Request"><span class="nav-number">1.1.</span> <span class="nav-text">Request</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ContentType"><span class="nav-number">1.1.1.</span> <span class="nav-text">ContentType</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>

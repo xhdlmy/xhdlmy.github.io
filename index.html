@@ -292,6 +292,132 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://xhdlmy.github.io/2018/09/20/千里之行，始于足下/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Lee&Da">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/kuiba_dacang.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="XL'Blogs">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/09/20/千里之行，始于足下/" itemprop="url">未命名</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-20T16:15:25+08:00">
+                2018-09-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>如果学习中容易胡思乱想，容易受他人影响，那么告诉自己，眼到、手到、心到！立马回神，如果是不好理解的硬骨头，不要慌乱、不要烦躁，稳住，一点点进入状态，只要想学习的话，方法总比困难多！不要只是盯着看，是比较容易受到影响并引起烦躁情绪的，不要囫囵吞枣，不然无用功而已！要么要敲代码，要么整理笔记，让大脑同步动起来！</p>
+<p>只有当下努力，沉浸才能令我舒服！</p>
+<p>当你在啃硬骨头时，想做却又受影响有烦躁情绪时，无法沉浸时，容易“胡思乱想”，比如，今天一天又过去了，却没有完成计划，离自己的目标和期望较远，那么不要想对不起刚组建的小家庭、对不起未来的自己；更需要做的是“自我肯定”，也就是“我不求赢得跟时间的赛跑，我只求认认真真跑完全程”，我相信到达终点蓦然回首时，会是另外一番景象。</p>
+<p>但求好事，不问前程。认认真真努力在当下，就算一条汉子。</p>
+<p>不那么在意得失，不去想；患得患失是大忌，过度幻想成功了如何如何，会急功近利，人会变得浮躁，如何能沉下心来！当你想得多而做得少时，看看丰满的理想和枯瘦的现实，又将你的自信打击，如此恶心循环，失败-自责-失败；成功就是做到了一点点也是成功，一步一个脚印。</p>
+<p>千里之行，始于足下。</p>
+<p>学习如此，锻炼也是如此！当你今日是在锻炼中度过了，那么今天就敬重自己是一条汉子！逃避和懒惰等负面情绪滋生是无法解决实际问题的，要解决问题，就是一条路，勇敢面对，努力去做！</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://xhdlmy.github.io/2018/09/11/字符编码/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -516,7 +642,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/09/10/HTTP协议 网络请求过程理解/" itemprop="url">2.HTTP协议</a></h1>
+                <a class="post-title-link" href="/2018/09/10/HTTP协议 网络请求过程理解/" itemprop="url">2.HTTP协议 OkHttp</a></h1>
         
 
         <div class="post-meta">
@@ -593,7 +719,117 @@
             <blockquote>
 <p>通过对开源项目在 HTTP 传输过程中的分析：需要对比，思考；如果是自己，会怎么做？有思考，就有提高。</p>
 </blockquote>
-<h2 id="Http-协议"><a href="#Http-协议" class="headerlink" title="Http 协议"></a>Http 协议</h2>
+<ul>
+<li>如何构造 Request ？<ul>
+<li>请求行 HTTP1.0 or HTTP2.0</li>
+<li>Method GET or POST</li>
+<li>Url</li>
+<li>Header</li>
+<li>Body</li>
+<li>CacheControl</li>
+</ul>
+</li>
+<li>如何构造 Response ?</li>
+<li>如何执行请求，将 Request 转换成 Response？</li>
+</ul>
+<h1 id="OkHttp"><a href="#OkHttp" class="headerlink" title="OkHttp"></a>OkHttp</h1><p><a href="https://blog.piasy.com/2016/07/11/Understand-OkHttp/" target="_blank" rel="noopener">拆轮子系列：拆OkHttp</a></p>
+<p><img src="/img/okHttp_flow_form.png" alt="OkHttp流程图"></p>
+<p>OkHttp 发送请求的代码：</p>
+<pre><code>Response response = client.newCall(request).execute();
+</code></pre><p>OkHttpClient 实现了 Call 接口 newCall(Request request) 方法，可以将构造好的 Request 通过 RealCall 的 execute() 方法来执行。</p>
+<h2 id="Request"><a href="#Request" class="headerlink" title="Request"></a>Request</h2><pre><code>HttpUrl url
+String method
+Heards hearders
+RequestBody    body
+
+Request request = new Request.Builder()
+  .url(url) 
+  .post(body)
+  .build();
+</code></pre><p>1 HttpUrl</p>
+<p>作用：就是将 url 字符串变成 HttpUrl 的 scheme host port 等可读懂的变量，这样 OkHttp 就能明白 Request 请求。</p>
+<pre><code>// 解析出 scheme host port 等参数
+HttpUrl.parse(String input)
+
+// build() 方法就是根据 parse 得到的参数来组建 HttpUrl 的过程
+HttpUrl url = new HttpUrl.Builder()
+    .scheme(&quot;https&quot;)
+    .host(&quot;www.google.com&quot;)
+    .addPathSegment(&quot;search&quot;)
+    .addQueryParameter(&quot;q&quot;, &quot;polar bears&quot;)
+    .build();
+</code></pre><p>2 Heards</p>
+<pre><code>String[] namesAndValues 
+</code></pre><p>作用：提供一组长度为偶数的数组，name value name value 排列，在进行请求时转化成符合 HTTP 规则的一行行请求头。</p>
+<p>3 RequestBody </p>
+<pre><code>new RequestBody() {
+  @Override public @Nullable MediaType contentType() {
+    return contentType;
+  }
+
+  @Override public long contentLength() {
+    return byteCount;
+  }
+
+  @Override public void writeTo(BufferedSink sink) throws IOException {
+    sink.write(content, offset, byteCount);
+  }
+}
+</code></pre><p>作用：提供的请求信息有 MediaType ContentLength，IO处理Body内容 content。</p>
+<p>4 CacheControl</p>
+<p>A Cache-Control header with cache directives from a server or client.</p>
+<h3 id="ContentType"><a href="#ContentType" class="headerlink" title="ContentType"></a>ContentType</h3><p><a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Basics_of_HTTP/MIME_types" target="_blank" rel="noopener">MIME类型</a></p>
+<p>浏览器通常使用MIME类型（而不是文件扩展名）来确定如何处理文档；因此服务器设置正确以将正确的MIME类型附加到响应对象的头部是非常重要的。</p>
+<p>语法格式：type/subtype</p>
+<p><img src="img/MIME_type.png" alt=""></p>
+<p>我使用 Fiddler 来监控我的 APP 请求：</p>
+<pre><code>POST http://192.168.1.104/API/L_20000.ashx HTTP/1.1
+
+Content-Type: application/octet-stream
+Content-Length: 329
+Host: 192.168.1.104
+Connection: Keep-Alive
+Accept-Encoding: gzip
+User-Agent: okhttp/3.10.0
+</code></pre><blockquote>
+<p>根据</p>
+</blockquote>
+<p>OkHttp 请求时候构造的 RequestBody</p>
+<pre><code>RequestBody.create(MediaType.parse(&quot;application/octet-stream&quot;), bytes);
+</code></pre><p>如果是上传图片时：</p>
+<pre><code>POST http://192.168.1.104/API/L_U10000.ashx?sn=201809201127515038971&amp;rtype=30301 HTTP/1.1
+Content-Type: multipart/form-data; boundary=b0c87a60-d0d4-4e19-8092-702085f07f03
+Content-Length: 1188456
+Host: 192.168.1.104
+Connection: Keep-Alive
+Accept-Encoding: gzip
+Cookie: __bhticket__=07D551E0694CD2304F45DCDFD63B796BEB001BF6DC68642360DCE0211A7C0019F814F8C86C87EAC4AE4AFF41D55713AF952D9F676CA9CC1D7DBC2E6E5F61206DDFDE267F8B21A9535B51603D462A872B8C4267C04B98CFFECB56B96697D9907CF593F848104A50E954A8BB55D88D6092E2BB368558494C4A71D38D8314B0443C2958A04F
+User-Agent: okhttp/3.10.0
+
+--b0c87a60-d0d4-4e19-8092-702085f07f03
+Content-Disposition: form-data; name=&quot;file0&quot;;filename=&quot;20180920112747.jpeg&quot;
+Content-Transfer-Encoding: binary
+Content-Type: image/jpeg
+Content-Length: 630322
+...（二进制数据）
+
+--b0c87a60-d0d4-4e19-8092-702085f07f03
+Content-Disposition: form-data; name=&quot;file1&quot;;filename=&quot;20180920112578.jpeg&quot;
+Content-Transfer-Encoding: binary
+Content-Type: image/jpeg
+Content-Length: 710875
+...（二进制数据）
+</code></pre><blockquote>
+<p>multipart/form-data 可用于HTML表单从浏览器发送信息给服务器。作为多部分文档格式，它由边界线 boundary（一个由’–’开始的字符串）划分出的不同部分组成。每一部分有自己的实体，以及自己的 HTTP 请求头，Content-Disposition和 Content-Type 用于文件上传领域，最常用的 (Content-Length 因为边界线作为分隔符而被忽略）。</p>
+</blockquote>
+<p>写入的代码如下：</p>
+<pre><code>Map&lt;String, RequestBody&gt; images = new HashMap&lt;String, RequestBody&gt;();
+for(int i = 0; i &lt; files.size(); i++){
+    File file = files.get(i);
+    // 重点是如下代码：不要 &quot;name=\&quot;&quot; + &quot;file&quot; + i + &quot;\&quot;;filename=\&quot;&quot; + file.getName() , 服务器解析会出现错误 name=&quot;name=&quot;file1&quot;
+    images.put(&quot;file&quot; + i + &quot;\&quot;;filename=\&quot;&quot; + file.getName(), RequestBody.create(Constant.MEDIA_JPEG, file));
+}
+</code></pre>
           
         
       
@@ -814,10 +1050,18 @@
 <h3 id="TCP协议"><a href="#TCP协议" class="headerlink" title="TCP协议"></a>TCP协议</h3><p>简单点，就是为了解决 UDP 协议的问题。</p>
 <p>这个协议非常复杂，但可以近似认为，它就是有确认机制的UDP协议，每发出一个数据包都要求确认。如果有一个数据包遗失，就收不到确认，发出方就知道有必要重发这个数据包了。</p>
 <p><strong>三次握手机制</strong></p>
-<h2 id="应用层"><a href="#应用层" class="headerlink" title="应用层"></a>应用层</h2><p>应用程序收到”传输层”的数据，接下来就要进行解读。由于互联网是开放架构，数据来源五花八门，必须事先规定好格式，否则根本无法解读。</p>
+<h3 id="应用层"><a href="#应用层" class="headerlink" title="应用层"></a>应用层</h3><p>应用程序收到”传输层”的数据，接下来就要进行解读。由于互联网是开放架构，数据来源五花八门，必须事先规定好格式，否则根本无法解读。</p>
 <p>“应用层”的作用，就是规定应用程序的数据格式。</p>
 <p>举例来说，TCP协议可以为各种各样的程序传递数据，比如Email、WWW、FTP等等。那么，必须有不同协议规定电子邮件、网页、FTP数据的格式，这些应用程序协议就构成了”应用层”。</p>
 <p>这是最高的一层，直接面对用户。它的数据就放在TCP数据包的”数据”部分。</p>
+<h1 id="Socket-套接字"><a href="#Socket-套接字" class="headerlink" title="Socket 套接字"></a>Socket 套接字</h1><blockquote>
+<p>Socket用于描述IP地址和端口，是通信链的句柄，通过 ip + port 能找到通信的双方，这就是 IP/TCP 传输层协议。应用程序可以通过Socket向网络发出请求或者应答网络请求。</p>
+</blockquote>
+<p>目前较为流行的网络编程模型是客户端/服务器（C/S）结构。即通信双方一方作为服务器等待客户提出请求并予以响应。客户则在需要服务时向服务器提出申请。服务器一般作为守护进程始终运行，监听网络端口，一旦有客户请求，就会启动一个服务进程来响应该客户，同时自己继续监听服务端口，使后来的客户也能及时得到服务。</p>
+<p><a href="https://blog.csdn.net/say_from_wen/article/details/78719396" target="_blank" rel="noopener">Socket通信</a></p>
+<blockquote>
+<p>Java 中提供了 Socket  ServerSocket 等类来建立符合 TCP 协议的 Socket 通道。</p>
+</blockquote>
 
           
         
@@ -903,7 +1147,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
