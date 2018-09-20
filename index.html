@@ -311,7 +311,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/09/20/千里之行，始于足下/" itemprop="url">未命名</a></h1>
+                <a class="post-title-link" href="/2018/09/20/千里之行，始于足下/" itemprop="url">千里之行 始于足下</a></h1>
         
 
         <div class="post-meta">
@@ -333,6 +333,28 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/随笔/" itemprop="url" rel="index">
+                    <span itemprop="name">随笔</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -829,7 +851,43 @@ for(int i = 0; i &lt; files.size(); i++){
     // 重点是如下代码：不要 &quot;name=\&quot;&quot; + &quot;file&quot; + i + &quot;\&quot;;filename=\&quot;&quot; + file.getName() , 服务器解析会出现错误 name=&quot;name=&quot;file1&quot;
     images.put(&quot;file&quot; + i + &quot;\&quot;;filename=\&quot;&quot; + file.getName(), RequestBody.create(Constant.MEDIA_JPEG, file));
 }
-</code></pre>
+</code></pre><h2 id="Dispatcher"><a href="#Dispatcher" class="headerlink" title="Dispatcher"></a>Dispatcher</h2><pre><code>// 同步
+private final Deque&lt;RealCall&gt; runningSyncCalls = new ArrayDeque&lt;&gt;();
+
+// 异步（在队列外等待的任务）
+private final Deque&lt;AsyncCall&gt; readyAsyncCalls = new ArrayDeque&lt;&gt;();
+// 异步（可以立即启动线程来执行的任务）
+private final Deque&lt;AsyncCall&gt; runningAsyncCalls = new ArrayDeque&lt;&gt;();
+</code></pre><p>异步请求时，控制并发量：</p>
+<pre><code>synchronized void enqueue(AsyncCall call) {
+    if (runningAsyncCalls.size() &lt; maxRequests &amp;&amp; runningCallsForHost(call) &lt; maxRequestsPerHost) {
+      runningAsyncCalls.add(call);
+      executorService().execute(call);
+    } else {
+      readyAsyncCalls.add(call);
+    }
+  }
+</code></pre><p>不管是同步还是异步请求，真正执行请求的是 RealCall getResponseWithInterceptorChain()</p>
+<pre><code>Response getResponseWithInterceptorChain() throws IOException {
+    // Build a full stack of interceptors.
+    List&lt;Interceptor&gt; interceptors = new ArrayList&lt;&gt;();
+    interceptors.addAll(client.interceptors());
+    interceptors.add(retryAndFollowUpInterceptor);
+    interceptors.add(new BridgeInterceptor(client.cookieJar()));
+    interceptors.add(new CacheInterceptor(client.internalCache()));
+    interceptors.add(new ConnectInterceptor(client));
+    if (!forWebSocket) {
+      interceptors.addAll(client.networkInterceptors());
+    }
+    interceptors.add(new CallServerInterceptor(forWebSocket));
+
+    Interceptor.Chain chain = new RealInterceptorChain(interceptors, null, null, null, 0,
+        originalRequest, this, eventListener, client.connectTimeoutMillis(),
+        client.readTimeoutMillis(), client.writeTimeoutMillis());
+
+    return chain.proceed(originalRequest);
+  }
+</code></pre><h2 id="Interceptor"><a href="#Interceptor" class="headerlink" title="Interceptor"></a>Interceptor</h2>
           
         
       
@@ -1158,7 +1216,7 @@ for(int i = 0; i &lt; files.size(); i++){
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>

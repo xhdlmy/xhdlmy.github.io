@@ -89,7 +89,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://xhdlmy.github.io/img/okHttp_flow_form.png">
 <meta property="og:image" content="https://xhdlmy.github.io/2018/09/10/HTTP协议%20网络请求过程理解/img/MIME_type.png">
-<meta property="og:updated_time" content="2018-09-20T06:58:18.517Z">
+<meta property="og:updated_time" content="2018-09-20T09:57:40.308Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="2.HTTP协议 OkHttp">
 <meta name="twitter:description" content="通过对开源项目在 HTTP 传输过程中的分析：需要对比，思考；如果是自己，会怎么做？有思考，就有提高。   如何构造 Request ？ 请求行 HTTP1.0 or HTTP2.0 Method GET or POST Url Header Body CacheControl   如何构造 Response ? 如何执行请求，将 Request 转换成 Response？  OkHttp拆轮子">
@@ -498,7 +498,43 @@ for(int i = 0; i &lt; files.size(); i++){
     // 重点是如下代码：不要 &quot;name=\&quot;&quot; + &quot;file&quot; + i + &quot;\&quot;;filename=\&quot;&quot; + file.getName() , 服务器解析会出现错误 name=&quot;name=&quot;file1&quot;
     images.put(&quot;file&quot; + i + &quot;\&quot;;filename=\&quot;&quot; + file.getName(), RequestBody.create(Constant.MEDIA_JPEG, file));
 }
-</code></pre>
+</code></pre><h2 id="Dispatcher"><a href="#Dispatcher" class="headerlink" title="Dispatcher"></a>Dispatcher</h2><pre><code>// 同步
+private final Deque&lt;RealCall&gt; runningSyncCalls = new ArrayDeque&lt;&gt;();
+
+// 异步（在队列外等待的任务）
+private final Deque&lt;AsyncCall&gt; readyAsyncCalls = new ArrayDeque&lt;&gt;();
+// 异步（可以立即启动线程来执行的任务）
+private final Deque&lt;AsyncCall&gt; runningAsyncCalls = new ArrayDeque&lt;&gt;();
+</code></pre><p>异步请求时，控制并发量：</p>
+<pre><code>synchronized void enqueue(AsyncCall call) {
+    if (runningAsyncCalls.size() &lt; maxRequests &amp;&amp; runningCallsForHost(call) &lt; maxRequestsPerHost) {
+      runningAsyncCalls.add(call);
+      executorService().execute(call);
+    } else {
+      readyAsyncCalls.add(call);
+    }
+  }
+</code></pre><p>不管是同步还是异步请求，真正执行请求的是 RealCall getResponseWithInterceptorChain()</p>
+<pre><code>Response getResponseWithInterceptorChain() throws IOException {
+    // Build a full stack of interceptors.
+    List&lt;Interceptor&gt; interceptors = new ArrayList&lt;&gt;();
+    interceptors.addAll(client.interceptors());
+    interceptors.add(retryAndFollowUpInterceptor);
+    interceptors.add(new BridgeInterceptor(client.cookieJar()));
+    interceptors.add(new CacheInterceptor(client.internalCache()));
+    interceptors.add(new ConnectInterceptor(client));
+    if (!forWebSocket) {
+      interceptors.addAll(client.networkInterceptors());
+    }
+    interceptors.add(new CallServerInterceptor(forWebSocket));
+
+    Interceptor.Chain chain = new RealInterceptorChain(interceptors, null, null, null, 0,
+        originalRequest, this, eventListener, client.connectTimeoutMillis(),
+        client.readTimeoutMillis(), client.writeTimeoutMillis());
+
+    return chain.proceed(originalRequest);
+  }
+</code></pre><h2 id="Interceptor"><a href="#Interceptor" class="headerlink" title="Interceptor"></a>Interceptor</h2>
       
     </div>
     
@@ -632,7 +668,7 @@ for(int i = 0; i &lt; files.size(); i++){
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -676,7 +712,7 @@ for(int i = 0; i &lt; files.size(); i++){
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#OkHttp"><span class="nav-number">1.</span> <span class="nav-text">OkHttp</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Request"><span class="nav-number">1.1.</span> <span class="nav-text">Request</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ContentType"><span class="nav-number">1.1.1.</span> <span class="nav-text">ContentType</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#OkHttp"><span class="nav-number">1.</span> <span class="nav-text">OkHttp</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Request"><span class="nav-number">1.1.</span> <span class="nav-text">Request</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ContentType"><span class="nav-number">1.1.1.</span> <span class="nav-text">ContentType</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dispatcher"><span class="nav-number">1.2.</span> <span class="nav-text">Dispatcher</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Interceptor"><span class="nav-number">1.3.</span> <span class="nav-text">Interceptor</span></a></li></ol></li></ol></div>
             
 
           </div>
