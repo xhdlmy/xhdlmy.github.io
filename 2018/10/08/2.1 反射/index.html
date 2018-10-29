@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="从 Java 的运行原理理解反射机制概念：Java的反射概念是在运行状态中能动态加载、感知、使用编译期间的任何类；即可以加载在运行时才得知名称的Class对象，在内存中构造该类对象并获取其属性和方法。问题：   在编译完成后生成 class 字节码文件，那么 Java 程序是如何运行的？    为什么需要反射机制？    反射机制如何实现？（Class Construction Field Met">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java Reflection （反射机制）">
+<meta property="og:url" content="https://xhdlmy.github.io/2018/10/08/2.1 反射/index.html">
+<meta property="og:site_name" content="XL&#39;Blogs">
+<meta property="og:description" content="从 Java 的运行原理理解反射机制概念：Java的反射概念是在运行状态中能动态加载、感知、使用编译期间的任何类；即可以加载在运行时才得知名称的Class对象，在内存中构造该类对象并获取其属性和方法。问题：   在编译完成后生成 class 字节码文件，那么 Java 程序是如何运行的？    为什么需要反射机制？    反射机制如何实现？（Class Construction Field Met">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://xhdlmy.github.io/img/JVM_theory.png">
+<meta property="og:image" content="https://xhdlmy.github.io/img/JVM.jpg">
+<meta property="og:image" content="https://xhdlmy.github.io/img/class_loading.png">
+<meta property="og:image" content="https://xhdlmy.github.io/img/class_load_appoint.png">
+<meta property="og:updated_time" content="2018-10-18T07:16:47.513Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java Reflection （反射机制）">
+<meta name="twitter:description" content="从 Java 的运行原理理解反射机制概念：Java的反射概念是在运行状态中能动态加载、感知、使用编译期间的任何类；即可以加载在运行时才得知名称的Class对象，在内存中构造该类对象并获取其属性和方法。问题：   在编译完成后生成 class 字节码文件，那么 Java 程序是如何运行的？    为什么需要反射机制？    反射机制如何实现？（Class Construction Field Met">
+<meta name="twitter:image" content="https://xhdlmy.github.io/img/JVM_theory.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '2FIA5CRNSO',
+      apiKey: 'e4862257cee716da51316339f64f39d8',
+      indexName: 'dev_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"输入关键字搜索","hits_empty":"没有找到与 ${query} 相关内容","hits_stats":"搜索到 ${hits} 条相关内容"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://xhdlmy.github.io/2018/10/08/2.1 反射/"/>
+
+
+
+
+
+  <title>Java Reflection （反射机制） | XL'Blogs</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">XL'Blogs</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+			
+			
+			
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://xhdlmy.github.io/2018/10/08/2.1 反射/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Lee&Da">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/kuiba_dacang.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="XL'Blogs">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java Reflection （反射机制）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-08T15:04:25+08:00">
+                2018-10-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="从-Java-的运行原理理解反射机制"><a href="#从-Java-的运行原理理解反射机制" class="headerlink" title="从 Java 的运行原理理解反射机制"></a>从 Java 的运行原理理解反射机制</h1><p>概念：Java的反射概念是在运行状态中能动态加载、感知、使用编译期间的任何类；即可以加载在运行时才得知名称的Class对象，在内存中构造该类对象并获取其属性和方法。<br>问题：</p>
+<ul>
+<li><ol>
+<li>在编译完成后生成 class 字节码文件，那么 Java 程序是如何运行的？</li>
+</ol>
+</li>
+<li><ol start="2">
+<li>为什么需要反射机制？</li>
+</ol>
+</li>
+<li><ol start="3">
+<li>反射机制如何实现？（Class Construction Field Method）</li>
+</ol>
+</li>
+</ul>
+<p><strong>理解 Java 语言</strong></p>
+<blockquote>
+<p>高级编程语言代码要转变成计算机所能执行的机器语言，有两种方式：</p>
+<ul>
+<li>编译：编译程序功能就是将高级编程语言翻译成与之等价的目标程序，可在特定的机器上直接执行。（如：Java将 .java 文件编译成 .class文件，可在 JVM 平台上运行）<ul>
+<li>优点：运行效率高，平台直接执行目标代码</li>
+<li>缺点：专一性，编译后程序无法跨平台（Java通过开发与不同平台适配的 JVM 中间层来完成适配，从而实现跨平台）</li>
+</ul>
+</li>
+<li>解释：在运行程序时直接执行源程序或者源程序的中间代码，由特定的解释器来执行代码，解释是翻译一句执行一句。<ul>
+<li>优点：跨平台容易</li>
+<li>缺点：效率较低，解释器解释过程非常耗时，不能脱离解释器独立运行（不同的系统平台也需要开发不同的解释器）</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>编译型语言：C C++ Object-C</p>
+</blockquote>
+<blockquote>
+<p>解释型语言：Python JavaScript</p>
+</blockquote>
+<p>Java语言是编译和解释的结合体，所以效率高，也跨平台。</p>
+<ul>
+<li>首先将Java源代码编译成与平台无关的class字节码文件(编译)</li>
+<li>通过不同平台的JVM虚拟机来执行字节码文件(解释)</li>
+</ul>
+<blockquote>
+<p>静态语言 vs 动态语言</p>
+<p>动态类型语言：类型的检查是在运行时来进行的，源代码是否合法只能在运行时才能判断。</p>
+<p>静态类型语言：类型的检查是在编译时就可确定，也就是写程序时要声明变量的数据类型。</p>
+<p>也有说动态语言：程序运行时，允许改变程序结构或者变量类型。</p>
+</blockquote>
+<h2 id="Java-程序的运行过程"><a href="#Java-程序的运行过程" class="headerlink" title="Java 程序的运行过程"></a>Java 程序的运行过程</h2><p>JDK：JRE + Java API + Tools<br>JRE：JVM + JAVA核心类库和支持文件 （所有 Java 程序都要在 JRE 环境下才能运行）<br>JVM：</p>
+<p>Java开发：我们利用JDK（调用JAVA API）开发一个 JAVA 程序后，通过 javac 工具将编写的 .java 文件编译成 .class 字节码文件；这些字节码文件必须在 JRE 环境中运行（必须依赖 JAVA核心库），由 JVM 解释这些字节码成为系统平台本地代码后，映射到CPU指令集或OS的系统调用。</p>
+<blockquote>
+<p>比如当代码中需要做 IO 操作时，就是调用 java API 的过程。查看源码便知，IO 操作实际是依赖于底层操作系统的，例如在操作系统 A 中，实际删除文件调用的是本地方法(native method) remove()，而操作系统 B 中实际调用的是delete()。而 Java 程序员不关心底层实现，而是去调用 java API 中规定的统一方法 deleteFile()。当程序在系统 A 中运行时，java 虚拟机中的执行器会将 deleteFile() 解释为本地方法 remove()。这就是为什么 .class 字节码文件不能直接独立运行，必须靠 JVM 执行引擎来解释成本地代码后才能执行。</p>
+</blockquote>
+<p><img src="/img/JVM_theory.png" alt="JVM"></p>
+<p>JVM 的执行引擎就是一个解释器，例如可以把部分 JAVA API 接口转换成具体的 native 本地系统平台的实现。</p>
+<p><img src="/img/JVM.jpg" alt="JVM"></p>
+<p>JVM 就是将”静”的代码”跑起来”的地方，程序运行就是在内存中执行程序指令。</p>
+<p>一个Java程序的运行必然要开辟一块内存（堆 栈 方法区），用来跑 JVM 进程。<br>JVM中的线程分为两种：普通线程和守护线程（守护线程是 JVM 自己使用的线程，比如 GC 线程就是一个守护线程）。线程可以理解为程序执行的流程单元。</p>
+<ul>
+<li>堆：存储的全是对象本身，每个对象都包含一个与之对应的 class 的信息（class 的目的是为了得到操作指令，可以理解为获取对象的属性|方法）。<ul>
+<li>堆区的对象被所有的线程共享。</li>
+</ul>
+</li>
+<li>栈：每个线程包含一个栈区，只保存基础数据类型的对象，或者自定义对象的引用（猜测栈区追求效率，较小，不存放对象）。<ul>
+<li>每个线程拥有一个方法调用栈区，用来记录、跟踪该线程运行汇总一系列的方法调用过程；每当线程调用一个方法的时候就会向方法栈压入一个新的栈帧，用来存储方法的参数，局部变量和运算过程中的临时数据。</li>
+</ul>
+</li>
+<li>方法区：包含所有的 class 类信息、 static 变量，被所有线程共享。</li>
+</ul>
+<p>类加载过程（ClassLoader）：一个程序启动一个 JVM 进程，这个进程首先读取 .class 文件，将需要加载的类信息先加载进方法区中。</p>
+<p>Java 程序的运行过程：</p>
+<pre><code>AppMain.java
+
+public class AppMain { //运行时, JVM 把 AppMain 的类信息都放入方法区
+
+    public static void main(String[] args) { // static main 方法本身放入方法区
+        Sample test1 = new Sample(&quot;测试1&quot;); // test1是引用，所以放到栈区里，Sample对象放到堆里面
+        test1.printName();
+    }
+
+}
+
+Sample.java
+
+public class Sample { // 运行时, JVM 把 Sample 的类信息都放入方法区
+
+    private String name; // new Sample实例后，name 引用放入栈区里，name String对象放入堆里
+
+    public  Sample(String name) { // 构造方法类本身的信息统统放入方法区
+        this .name = name;
+    }
+
+    public void printName() { // print 方法属于类本身信息放入方法区里。
+        System.out.println(name);
+    }
+
+} 
+</code></pre><p>Java 程序的运行过程：</p>
+<ol>
+<li>首先由类加载器将 APPMain 类信息加载进方法区中；</li>
+<li>main函数主线程流程往下走：根据程序指令， Sample test1 = new Sample(“测试1”);  生成的对象之前，必须先获取 Sample 类的信息，那么类加载器先将 Sample 类信息加载进方法区中；</li>
+<li>堆区开辟一块内存，存放 Sample 实例对象，这个 Sample 实例持有着指向方法区的 Sample 类的类型信息的引用。</li>
+<li>位于 “=” 前的 test1 是一个在 main() 方法中定义的局部变量，因此，它被添加到了执行 main() 方法的主线程的方法调用栈中。 “=” 代表着 test1 持有着 Sample 对象的引用 。</li>
+<li>接下来，JVM 将继续执行 test1.printName() 指令，根据局部变量 test1 持有的引用，定位到堆区中的 Sample 实例，再根据 Sample 实例持有的引用，定位到方法区中 Sample 类的类型信息，从而获得 printName() 方法的字节码，接着执行 printName() 方法包含的指令。</li>
+</ol>
+<h3 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h3><p>Java 的类加载是在程序运行期间实现的，也就是说可以在运行时加载具体的类信息，提高了程序的灵活性：</p>
+<ul>
+<li>可以编写面向接口的应用程序，等到运行时再指定其实现的子类</li>
+<li>可以自定义一个类加载器，让程序在运行时从网络或者其他地方（非程序本身的字节码文件）加载一个二进制流作为程序代码的一部分（这个是 Android 插件化、动态安装更新 Apk 的基础）</li>
+</ul>
+<blockquote>
+<p>我们是否可以这样来架构软件框架。首先，我们的软件有一个配置文件，配置文件其实是一个文本，里面详细描述了，我们的软件核心部分运行起来后还需要从什么路径加载些什么类需要何时调用什么方法等。这样当我们需要加或减某些功能时，我们只需要简单地修改配置文本文件，然后删除或者添加相应的.class文件就可以了。<br>如果你足够敏感，你或许会发现，这种方式形成的配置文件几乎可以相当于一门脚本语言了。而且这个脚本的解释器也是我们自己写的，另外关键是它是开发的，你可以为它动态地加入一些新的类以增加它的功能。<br>不要以为这仅仅是一个设想，虽然要开发成一门完备的脚本语言确实比较麻烦。但是在一些网络端的大型项目中，通过配置文件 + ClassLoader + 反射机制结合形成的这种软件解耦和方式已经用得比较普遍了。</p>
+</blockquote>
+<p><a href="https://juejin.im/post/5b7e708b51882542b83d70c9" target="_blank" rel="noopener">Java反射机制</a></p>
+<p><img src="/img/class_loading.png" alt="过程"></p>
+<p>重点是明白第一个 ClassLoading 加载过程：</p>
+<ol>
+<li>通过全类名来获取定义此类的二进制字节流</li>
+<li>将字节流所代表的静态存储结构转换为方法区的运行时数据结构（静态代码-&gt;内存中数据结构）</li>
+<li>如果是 new 对象，那么在堆区中生成一个代表这个类的对象，这个对象拥有一个“指针”，作为访问方法区该类型数据结构的访问入口</li>
+</ol>
+<p>JVM设计者把类加载阶段中的实现 “通过’类全名’来获取定义此类的二进制字节流” 这个动作的代码模块称为“类加载器”。</p>
+<p><img src="/img/class_load_appoint.png" alt="类加载器"></p>
+<p>双亲委派模型的工作过程为：如果一个类加载器收到了类加载的请求，它首先不会自己去尝试加载这个类，而是把这个请求委派给父类加载器去完成，每一个层次的加载器都是如此，因此所有的类加载请求都会传给顶层的启动类加载器，只有当父加载器反馈自己无法完成该加载请求（该加载器的搜索范围中没有找到对应的类）时，子加载器才会尝试自己去加载。</p>
+<p>保证了加载的同名类是同一个类！！！对于任何一个类，都需要由加载它的类加载器和这个类来确立其在JVM中的唯一性。也就是说，两个类来源于同一个 Class 文件，并且被同一个类加载器加载，这两个类才相等。</p>
+<p><a href="https://blog.csdn.net/boyupeng/article/details/47951037" target="_blank" rel="noopener">JVM：类加载机制</a></p>
+<h2 id="理解反射机制-反射机制是什么？Java-为什么需要反射机制？"><a href="#理解反射机制-反射机制是什么？Java-为什么需要反射机制？" class="headerlink" title="理解反射机制 反射机制是什么？Java 为什么需要反射机制？"></a>理解反射机制 反射机制是什么？Java 为什么需要反射机制？</h2><p><strong>仔细观察上面的流程图，需要加载的 Sample 类是在编译时就确定了的，但如果程序在运行时需要用到一个未被加载的类的对象，并调用其方法，那么是不是首先要加载这个类的信息到方法区中。</strong></p>
+<p>概念：反射机制就是提供了让 Java 语言在程序运行时感知、获取程序集中的任何类的信息的能力。可以在运行时动态加载类、访问属性、调用方法。</p>
+<p>扩展：静态语言 vs 动态语言</p>
+<ul>
+<li>动态类型语言：类型的检查是在运行时来进行的，源代码是否合法只能在运行时才能判断。</li>
+<li>静态类型语言：类型的检查是在编译时就可确定，也就是写程序时要声明变量的数据类型。</li>
+</ul>
+<h3 id="反射机制的运用"><a href="#反射机制的运用" class="headerlink" title="反射机制的运用"></a>反射机制的运用</h3><ol>
+<li><p>情景一：在运用 Struts2 框架中一般会在 struts.xml 配置化文件中配置 Action，</p>
+ <action name="login" class="org.ScZyhSoft.test.action.SimpleLoginAction" method="execute"><br>     <result>/shop/shop-index.jsp</result><br>     <result name="error">login.jsp</result><br> </action>
+
+</li>
+</ol>
+<p>那么配置文件与 Action 建立了一种映射关系，当 View 层发出请求时，请求会被StrutsPrepareAndExecuteFilter 拦截，然后 StrutsPrepareAndExecuteFilter 会去动态地创建 Action 实例。</p>
+<p>比如我们请求 login.action，那么 StrutsPrepareAndExecuteFilter 就会去解析 struts.xml 文件，检索 action 中 name 为 login 的 Action，并根据 class 属性创建 SimpleLoginAction 实例，并用 invoke 方法来调用 execute 方法，这个过程离不开反射。</p>
+<p><strong>反射最重要的就是开发各种通用框架</strong></p>
+<ol start="2">
+<li><p>情景二：在网络请求中，并不能在编译期间就得知请求完成时的 json 数据应该反序列化成那个具体的 XxxResp 类，不同的网络请求得到的是不同的 XxxResp 信息，那么就需要在运行时根据 Gson TypeToken 解析出的泛型类信息来动态地创建该类对象。</p>
+</li>
+<li><p>情景三：强大的 IDE 提示：当我们动态输入一个对象或类并想调用它的属性或方法时，一按点号，编译器就会自动列出它的属性或方法，这个过程就用到反射来列出该类的属性、方法。</p>
+</li>
+</ol>
+<p><a href="https://www.sczyh30.com/posts/Java/java-reflection-1/" target="_blank" rel="noopener">深入解析Java反射1</a></p>
+<h3 id="反射机制是如何实现的？"><a href="#反射机制是如何实现的？" class="headerlink" title="反射机制是如何实现的？"></a>反射机制是如何实现的？</h3><p>问：如何做到的？</p>
+<p>答：Class 类，描述类型的类。要理解反射，就先要理解 Class 类。</p>
+<p>万物皆对象，对象是一个类的实例，所以类本身是 java.lang.Class 类的实例对象，也就是说 Class 类是所有类（包括Java核心类、你自己所创建的类）的类，是类的类型描述，拥有获取不同类的结构信息，包括构造、属性、方法等。</p>
+<p>看之前的栗子，普通对象都是可以直接 new 出来的。但是 Class 的对象是类，类是不能通过 new 来创建的，构造器是私有的，只能由 JVM 类加载器来创建。</p>
+<ol>
+<li><p>获得 Class 对象 （一切反射API的开始）</p>
+<p> // 通过外界传入类名<br> Class.forName(String className);</p>
+<p> // 类的 class 属性<br> Class cls = String.class;</p>
+<p> // 对象的 getClass() 方法<br> Panda panda = new Panda(“欢欢”);<br> Class cls = panda.getClass();</p>
+</li>
+<li><p>判断对象是否为某类的实例</p>
+<p> instanceof 关键字 （对比类名和类加载器是否为同一个，如果是，则返回 true）</p>
+</li>
+<li><p>创建实例</p>
+<p> // 简便创建无参构造<br> Class cls = Student.class;<br> cls.newInstance();</p>
+<p> // 通过 Class 对象获取 Constructor 对象<br> Class cls = Student.class;<br> Constructor constructor = cls.getConstructor(String.class, Integer.class);<br> constructor.newInstance(“lmy”, 26);</p>
+<p> // 创建数组<br> Class&lt;?&gt; cls = Class.forName(“java.lang.String”);<br> Array.newInstance(cls, 24); // len 为 24</p>
+</li>
+<li><p>获取属性</p>
+<p> getFiled()<br> getDeclaredField() (获取声明的，不包括父类继承的)</p>
+</li>
+<li><p>获取方法</p>
+<p> // 这里也说明了方法的重载与参数有关<br> getMethod(String name, Class… parameterTypes) 方法名，参数类型<br> getMethods()<br> getDeclaredMethods()</p>
+</li>
+<li><p>调用方法 运行状态动态调用某个方法</p>
+<p> // 将通过反射API的对象作为参数传入来调用该方法，完全跟普通情况反了过来。<br> public Object invoke(Object obj, Object… args)</p>
+</li>
+</ol>
+<h1 id="Java-动态代理"><a href="#Java-动态代理" class="headerlink" title="Java 动态代理"></a>Java 动态代理</h1><pre><code>// 静态代理
+    QingDaoBeerFactory qingDaoBeerFactory = new QingDaoBeerFactory();
+    QingDaoBeerBar qingDaoBeerBar = new QingDaoBeerBar(qingDaoBeerFactory);
+    qingDaoBeerBar.saleBeer();
+
+    // 动态代理
+    /**
+     * 返回一个代理接口的实例对象(包名+$Proxy+id)，该接口的方法由 InvocationHandler 来代理执行
+     * 由于 com.xhd.tv.queentv.dynamic_proxy.$Proxy0 继承了 Proxy 实现了 BeerFactory 接口，所以可以往上泛化成 BeerFactory 类型,
+     * 如果强制转化成 QingDaoBeerBar，则会报错：
+     * java.lang.ClassCastException: com.sun.proxy.$Proxy4 cannot be cast to com.xhd.tv.queentv.dynamic_proxy.QingDaoBeerBar
+     */
+    BeerFactory beerBar =
+            (BeerFactory) Proxy.newProxyInstance(BeerFactory.class.getClassLoader(), // 通过这个类加载器来定义这个代理类对象
+            new Class[]{BeerFactory.class}, // 需要实现的代理接口
+            new InvocationHandler() { // 每一个生成的代理接口对象都有一个 InvocationHandler 与之交互（接口方法的调用处理程序）
+                /*
+                This method will be invoked on an invocation handler
+                when a method is invoked on a proxy instance that it is associated with.
+                 */
+                @Override
+                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                    method.invoke(new QingDaoBeerFactory(), args);
+                    method.invoke(new HarbinBeerFactory(), args);
+                    return null;
+                }
+            });
+    beerBar.saleBeer(); // 实际上是调用了 InvocationHandler 的 invoke 方法，传入真实对象和参数，来代理真实对象的该接口方法。
+</code></pre>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/08/2.4 Dagger2使用/" rel="next" title="2.Dagger 依赖注入">
+                <i class="fa fa-chevron-left"></i> 2.Dagger 依赖注入
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/10/17/2.2 泛型 Gson反序列化/" rel="prev" title="JDK1.5 泛型">
+                JDK1.5 泛型 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/kuiba_dacang.png"
+                alt="Lee&Da" />
+            
+              <p class="site-author-name" itemprop="name">Lee&Da</p>
+              <p class="site-description motion-element" itemprop="description">海纳百川 有容乃大 壁立千仞 无欲则刚</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#从-Java-的运行原理理解反射机制"><span class="nav-number">1.</span> <span class="nav-text">从 Java 的运行原理理解反射机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-程序的运行过程"><span class="nav-number">1.1.</span> <span class="nav-text">Java 程序的运行过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#类加载过程"><span class="nav-number">1.1.1.</span> <span class="nav-text">类加载过程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#理解反射机制-反射机制是什么？Java-为什么需要反射机制？"><span class="nav-number">1.2.</span> <span class="nav-text">理解反射机制 反射机制是什么？Java 为什么需要反射机制？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#反射机制的运用"><span class="nav-number">1.2.1.</span> <span class="nav-text">反射机制的运用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#反射机制是如何实现的？"><span class="nav-number">1.2.2.</span> <span class="nav-text">反射机制是如何实现的？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Java-动态代理"><span class="nav-number">2.</span> <span class="nav-text">Java 动态代理</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee&Da</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

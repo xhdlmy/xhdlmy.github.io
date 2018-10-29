@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="互联网协议," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="关于字符编码，需要了解的阮一峰：字符编码 计算机只认 0 or 1 序列，所以计算机在传输过程中的最小基本单位是 bit ；而生活中只认英文、中文等人类看得懂的字符，那么就要将字符与 0-1 序列建立联系；建立联系的桥梁就是字符编码。由于 ASCII 编码，要表达美帝的语言，要8bit才能搞定（表述 256 种不同的状态，最高位为0，就有 128 种可代表的字符），计算机的最小存储单位就变成了 b">
+<meta name="keywords" content="互联网协议">
+<meta property="og:type" content="article">
+<meta property="og:title" content="3.字符编码-字符集">
+<meta property="og:url" content="https://xhdlmy.github.io/2018/09/11/1.3 字符编码/index.html">
+<meta property="og:site_name" content="XL&#39;Blogs">
+<meta property="og:description" content="关于字符编码，需要了解的阮一峰：字符编码 计算机只认 0 or 1 序列，所以计算机在传输过程中的最小基本单位是 bit ；而生活中只认英文、中文等人类看得懂的字符，那么就要将字符与 0-1 序列建立联系；建立联系的桥梁就是字符编码。由于 ASCII 编码，要表达美帝的语言，要8bit才能搞定（表述 256 种不同的状态，最高位为0，就有 128 种可代表的字符），计算机的最小存储单位就变成了 b">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-09-12T09:33:17.888Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="3.字符编码-字符集">
+<meta name="twitter:description" content="关于字符编码，需要了解的阮一峰：字符编码 计算机只认 0 or 1 序列，所以计算机在传输过程中的最小基本单位是 bit ；而生活中只认英文、中文等人类看得懂的字符，那么就要将字符与 0-1 序列建立联系；建立联系的桥梁就是字符编码。由于 ASCII 编码，要表达美帝的语言，要8bit才能搞定（表述 256 种不同的状态，最高位为0，就有 128 种可代表的字符），计算机的最小存储单位就变成了 b">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '2FIA5CRNSO',
+      apiKey: 'e4862257cee716da51316339f64f39d8',
+      indexName: 'dev_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"输入关键字搜索","hits_empty":"没有找到与 ${query} 相关内容","hits_stats":"搜索到 ${hits} 条相关内容"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://xhdlmy.github.io/2018/09/11/1.3 字符编码/"/>
+
+
+
+
+
+  <title>3.字符编码-字符集 | XL'Blogs</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">XL'Blogs</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+			
+			
+			
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://xhdlmy.github.io/2018/09/11/1.3 字符编码/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Lee&Da">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/kuiba_dacang.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="XL'Blogs">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">3.字符编码-字符集</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-11T10:07:07+08:00">
+                2018-09-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Web/" itemprop="url" rel="index">
+                    <span itemprop="name">Web</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><a href="http://www.imkevinyang.com/2010/06/%E5%85%B3%E4%BA%8E%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81%EF%BC%8C%E4%BD%A0%E6%89%80%E9%9C%80%E8%A6%81%E7%9F%A5%E9%81%93%E7%9A%84.html" target="_blank" rel="noopener">关于字符编码，需要了解的</a><br><a href="http://www.ruanyifeng.com/blog/2007/10/ascii_unicode_and_utf-8.html" target="_blank" rel="noopener">阮一峰：字符编码</a></p>
+<p>计算机只认 0 or 1 序列，所以计算机在传输过程中的最小基本单位是 bit ；<br>而生活中只认英文、中文等人类看得懂的字符，那么就要将字符与 0-1 序列建立联系；建立联系的桥梁就是字符编码。由于 ASCII 编码，要表达美帝的语言，要8bit才能搞定（表述 256 种不同的状态，最高位为0，就有 128 种可代表的字符），计算机的最小存储单位就变成了 byte (8bit) 。</p>
+<p>字符集我个人理解就是容纳了人们看得懂的一套字符组合的字节序列集合；字符编码是通过该字符集的一套编码规则来将现实的字符与计算机“认识”的字符集一一映射关系。</p>
+<p>乱码：字符必须使用一套字符编码规则后才能被计算机传输与存储，与编码对应的就是解码了，要想打开一个文本文件，就必须知道它的编码方式，否则用错误的字符编码方式来解读，就会出现乱码。（著名的“联通”事件~~）</p>
+<blockquote>
+<p>要想彻底了解字符编码，就得讲讲其发展历史了：</p>
+</blockquote>
+<h1 id="第一发展阶段-ANSI（-American-National-Standards-Institute）美国国家标准协会"><a href="#第一发展阶段-ANSI（-American-National-Standards-Institute）美国国家标准协会" class="headerlink" title="第一发展阶段 ANSI（ American National Standards Institute）美国国家标准协会"></a>第一发展阶段 ANSI（ American National Standards Institute）美国国家标准协会</h1><blockquote>
+<p>我们现在通常说到ANSI编码，通常指的是平台的默认编码，例如英文操作系统中是ISO-8859-1，中文系统是GBK。</p>
+</blockquote>
+<h2 id="ASCII-字符集"><a href="#ASCII-字符集" class="headerlink" title="ASCII 字符集"></a>ASCII 字符集</h2><p>出现：上世纪60年代，美国制定了一套字符编码，对英语字符与二进制位之间的关系，做了统一规定。这被称为 ASCII 码，一直沿用至今。<br>规则：ASCII 码一共规定了128个字符的编码，比如空格SPACE是32（二进制00100000），大写的字母A是65（二进制01000001）。这128个符号（包括32个不能打印出来的控制符号），只占用了一个字节的后面7位，最前面的一位统一规定为0。</p>
+<h2 id="ISO-8859-1-扩展字符集"><a href="#ISO-8859-1-扩展字符集" class="headerlink" title="ISO-8859-1 扩展字符集"></a>ISO-8859-1 扩展字符集</h2><p>出现：世界各地都开始使用计算机了，很多非英语国家就会发现，自己的很多字符在 ASCII 中根本没有，所以为了在计算机中保存他们的字符，就将最高位也用起来了，那么从第128-255个位置规定的字符集，就被称为“扩展字符集”。</p>
+<h2 id="双字节字符集"><a href="#双字节字符集" class="headerlink" title="双字节字符集"></a>双字节字符集</h2><p>出现：美帝当初没想到，第三世界的人们有一天也想使用计算机了，那么中国这么多汉字，256个字符显然是不OK的，那么两个字节可以表示的话应该够了哦</p>
+<blockquote>
+<p>注：英语用 128 个符号编码就够用了，但是对于其他语种显然是不够用的。如果用两个字节来表示一个汉字，那么理论上最多可以表示 256*256=65536 个汉字。但是不能乱指定规则，要考虑兼容 ASCII 与其扩展字符集</p>
+</blockquote>
+<p>已中文为例：讲讲如何指定编码规则来兼容 ASCII 与其扩展字符集，并增加6000多个常用汉字。</p>
+<h3 id="GB2312"><a href="#GB2312" class="headerlink" title="GB2312"></a>GB2312</h3><p>出现：首先扩展字符集对中文是没啥用的，全部取消，只兼容 ASCII，就是如果一个字节的最高位为 0，那么就表示英文；如果两个连续的字节最高位都为1，则合起来表示中文（字节是最小的处理单位：也就是一个小于127的字节序列（属于ASCII）代表的字符的意义与原来相同，但两个大于127的字符连在一起时为中文），前面的称之为高字节，后面的称之为低字节。<br>由于兼容，所以说 GB2312是ASCII对中文的扩展。</p>
+<h3 id="GBK"><a href="#GBK" class="headerlink" title="GBK"></a>GBK</h3><p>出现：后来发现还有很多中文字不够用，需要再次扩展，于是要求低字节的可以是127以内的ASCII内码，只要高字节是大于127的就表示该连续两个字节代表一个中文，所以兼容了 GB2312，并新增了新的中文字符。</p>
+<blockquote>
+<p>后来为了兼容少数民族字符，又出现了 GB18030 编码字符集。</p>
+</blockquote>
+<h1 id="第二发展阶段-UCS（-ISO（国际标谁化组织）世界统一标准字符集）"><a href="#第二发展阶段-UCS（-ISO（国际标谁化组织）世界统一标准字符集）" class="headerlink" title="第二发展阶段 UCS（ ISO（国际标谁化组织）世界统一标准字符集）"></a>第二发展阶段 UCS（ ISO（国际标谁化组织）世界统一标准字符集）</h1><blockquote>
+<p>问题：因为当时各个国家都像中国这样搞出一套自己的编码标准，结果互相之间谁也不懂谁的编码，谁也不支持别人的编码，就连大陆和台湾也分别采用了不同的双字节编码方案（当时的中国人想让电脑显示汉字，就必须装上一个”汉字系统”，台湾写的程序就必须要支持 BIG5 编码的”倚天汉字系统”才可以用，装错了字符系统，显示就会乱了套！）那时的操作系统在发布的时候，通常会往机器里预装这些标准的字符集还有平台专用的字符集，这样只要你的文档是使用标准字符集编写的，通用性就比较高了。</p>
+</blockquote>
+<blockquote>
+<p>在Unicode出现之前，所有的字符集都是和具体编码方案绑定在一起的，都是直接将字符和最终字节流绑定死了。</p>
+</blockquote>
+<h1 id="Unicode-编码集"><a href="#Unicode-编码集" class="headerlink" title="Unicode 编码集"></a>Unicode 编码集</h1><p>出现：虽然通过使用不同字符集，我们可以在一台机器上查阅不同语言的文档，但是我们仍然无法解决一个问题：在一份文档中显示所有字符。为了解决这个问题，我们需要一个全人类达成共识的巨大的字符集，这就是Unicode字符集。<br>作用：将世界上所有的符号都纳入其中。每一个符号都给予一个独一无二的编码，那么乱码问题就会消失。这就是 Unicode，就像它的名字都表示的，这是一种所有符号的编码。</p>
+<p>Unicode字符集涵盖了目前人类使用的所有字符，并为每个字符进行统一编号，分配唯一的字符码。Unicode字符集将所有字符按照使用上的频繁度划分为17个层面（Plane），每个层面上有2^16=65536个字符码空间。其中第0个层面就是 BMP，基本涵盖了当今世界用到的所有字符。</p>
+<p>Unicode 与之前的 ASCII 等扩展出的字符集根本的不同就是在于，在设计上<strong>Unicode将字符集和字符编码方案分离开。</strong></p>
+<p>Unicode 字符集的编码方案有三种， UTF-2 UTF-16 UTF-8</p>
+<p>Unicode字符集解决的问题：Unicode 只是一个符号集，它只规定了符号的二进制代码，世界上的每一个字符都有唯一对应的 二进制串。</p>
+<p>需要解决的问题：计算机如何智能地“分割”不同的字符？按二个字节或者四个字节，那么Unicode表示ASCII的英文字母等简单字符的时候大大增加了字节数；那如果是变长的字节，又如何判别该字节流的二进制串的编码方式是 Unicode 编码呢？</p>
+<h2 id="UCS-2-UTF-16-编码方案"><a href="#UCS-2-UTF-16-编码方案" class="headerlink" title="UCS-2/UTF-16 编码方案"></a>UCS-2/UTF-16 编码方案</h2><p>如果要我们来实现Unicode字符集中BMP字符的编码方案，我们会怎么实现？由于BMP层面上有2^16=65536个字符码，因此我们只需要两个字节就可以完全表示这所有的字符了。</p>
+<p>举个例子，“中”的Unicode字符码是0x4E2D(01001110 00101101)，那么我们可以编码为01001110 00101101（大端）或者00101101 01001110 （小端）。</p>
+<p>UCS-2和UTF-16对于BMP层面的字符均是使用2个字节来表示，并且编码得到的结果完全一致。不同之处在于，UCS-2最初设计的时候只考虑到BMP字符，因此使用固定2个字节长度，也就是说，他无法表示Unicode其他层面上的字符，而UTF-16为了解除这个限制，支持Unicode全字符集的编解码，采用了变长编码，最少使用2个字节，如果要编码BMP以外的字符，则需要4个字节结对，这里就不讨论那么远。</p>
+<p><strong>Windows从NT时代开始就采用了UTF-16编码，很多流行的编程平台，例如.Net，Java，Qt还有Mac下的Cocoa等都是使用UTF-16作为基础的字符编码。例如代码中的字符串，在内存中相应的字节流就是用UTF-16编码过的。</strong></p>
+<h2 id="UTF-8-编码方案"><a href="#UTF-8-编码方案" class="headerlink" title="UTF-8 编码方案"></a>UTF-8 编码方案</h2><p>UTF-8应该是目前应用最广泛的一种Unicode编码方案。由于UCS-2/UTF-16对于ASCII字符使用两个字节进行编码，存储和处理效率相对低下，由于 ASCII 字符来说，经过 UTF-16 编码后得到的两个字节，高字节始终是0x00，很多C语言的函数都将此字节视为字符串末尾从而导致无法正确解析文本。因此一开始推出的时候遭到很多西方国家的抵触，大大影响了Unicode的推行。后来聪明的人们发明了UTF-8编码，解决了这个问题。</p>
+<p>UTF-8 编码方案最大的一个特点，就是它是一种变长的编码方式。它可以使用1~4个字节表示一个符号，根据不同的符号而变化字节长度。</p>
+<p>UTF-8 的编码规则很简单，只有二条：</p>
+<ul>
+<li>1 对于单字节的符号，字节的第一位设为0，后面7位为这个符号的 Unicode 码。因此对于英语字母，UTF-8 编码和 ASCII 码是相同的。（兼容ASCII编码）</li>
+<li>2 对于n字节的符号（n &gt; 1），第一个字节的前n位都设为1，第n + 1位设为0，后面字节的前两位一律设为10。剩下的没有提及的二进制位，全部为这个符号的 Unicode 码，从后往前，剩下的补位0即可。</li>
+</ul>
+<h2 id="带-BOM-的-UTF-8-（BOM——Byte-Order-Mark，就是字节序标记）"><a href="#带-BOM-的-UTF-8-（BOM——Byte-Order-Mark，就是字节序标记）" class="headerlink" title="带 BOM 的 UTF-8 （BOM——Byte Order Mark，就是字节序标记）"></a>带 BOM 的 UTF-8 （BOM——Byte Order Mark，就是字节序标记）</h2><p>指的是字节流以BOM标记开始。很多软件会“智能”的探测当前字节流使用的字符编码，这种探测过程出于效率考虑，通常会提取字节流前面若干个字节，看看是否符合某些常见字符编码的编码规则。由于UTF-8和ASCII编码对于纯英文的编码是一样的，无法区分开来，因此通过在字节流最前面添加BOM标记可以告诉软件，当前使用的是Unicode编码，判别成功率就十分准确了。但是需要注意，不是所有软件或者程序都能正确处理BOM标记，例如PHP就不会检测BOM标记，直接把它当普通字节流解析了。因此如果你的PHP文件是采用带BOM标记的UTF-8进行编码的，那么有可能会出现问题。</p>
+<p>BOM 标记</p>
+<p>对于 UTF-2 来说就是 FE FF 这代表是大端法， FF FE 这代表是小端法。<br>对于 UTF-8 来说就是有无 EF BB BF 问题。</p>
+<h3 id="保存“联通”乱码问题"><a href="#保存“联通”乱码问题" class="headerlink" title="保存“联通”乱码问题"></a>保存“联通”乱码问题</h3><p>讲到这里，就可以聊聊一个很著名的奇怪现象：当你在 windows 的记事本里新建一个文件，输入”联通”两个字之后，保存，关闭，然后再次打开，你会发现这两个字已经消失了，代之的是几个乱码！</p>
+<p>其实这是因为GB2312编码与UTF8编码产生了编码冲撞的原因。</p>
+<p>保存文件一般有 ANSI（默认） | Unicode | Unicode big endian | UTF-8 几种编码格式。</p>
+<p>当你用Win系统保存“联通”时，是默认 ANSI 的中文扩展 GB2312 编码，写成二进制串就是 1110-0110 10-110001 10-001001，刚好符合 UTF的规则。<br>那么再次打开文件就是“解码”过程，txt编辑器软件将其当做 UTF-8 来解码，当然是乱码了。</p>
+<p>当用 Unicode | Unicode big endian | UTF-8 保存就没有问题，因为都带有 BOM 检测标识头，ANSI 是没有的；<br>其中 Unicode 编码就是 UTF-2 的大小端问题，前面加上 FE FF或者 FF FE；<br>如果是 UTF-8 可以是带 BOM 的，那么前面就是 EF BB BF，如果不带的话，就是 无 BOM 编码</p>
+<h2 id="网络传输时候的编码为-ISO-8859-1"><a href="#网络传输时候的编码为-ISO-8859-1" class="headerlink" title="网络传输时候的编码为 ISO-8859-1"></a>网络传输时候的编码为 ISO-8859-1</h2><p>ISO-8859-1编码是单字节编码，向下兼容ASCII，其编码范围是0x00-0xFF，0x00-0x7F之间完全和ASCII一致，0x80-0x9F之间是控制字符，0xA0-0xFF之间是文字符号。ISO-8859-1收录的字符除ASCII收录的字符外，还包括西欧语言、希腊语、泰语、阿拉伯语、希伯来语对应的文字符号。</p>
+<blockquote>
+<p>顺便提一下16进制转10进制，0x00 = 0, 0x7F = 7<em>16^1 + 15 = 127, 0xFF = 15</em>16^1 + 15 = 255 .</p>
+</blockquote>
+<p>最重要的特性：因为ISO-8859-1编码范围使用了单字节内的所有空间，在支持ISO-8859-1的系统中传输和存储其他任何编码的字节流都不会被抛弃。换言之，<strong>把其他任何编码的字节流当作ISO-8859-1编码看待都没有问题。</strong> </p>
+<blockquote>
+<p>我的理解：例如在 Android 平台中进行 HTTP 传输过程中，传递过来的参数是 UTF-8 编码，那么服务端就按照 UTF-8 来解码就好了；如果参数是以 GB2312编码，那么服务端就以 GB2312 来解码就好了。只不过是在传输过程中又进行了 ISO-8859-1 一次编码。</p>
+</blockquote>
+<p><a href="https://blog.csdn.net/liuzx32/article/details/38048231" target="_blank" rel="noopener">HTTP协议参数传递中的编码问题</a></p>
+<p><a href="https://segmentfault.com/a/1190000015800019" target="_blank" rel="noopener">HTTP请求时候的编码与解码</a></p>
+<p><a href="http://www.cnblogs.com/pony/archive/2008/08/05/1260925.html" target="_blank" rel="noopener">ISO-8859-1 UTF-8 GB2312</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/互联网协议/" rel="tag"># 互联网协议</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/10/1.2 HTTP协议 网络请求过程理解/" rel="next" title="2.OkHttp">
+                <i class="fa fa-chevron-left"></i> 2.OkHttp
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/09/19/History 清朝末年，难以续命/" rel="prev" title="清朝末年，难以续命">
+                清朝末年，难以续命 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/kuiba_dacang.png"
+                alt="Lee&Da" />
+            
+              <p class="site-author-name" itemprop="name">Lee&Da</p>
+              <p class="site-description motion-element" itemprop="description">海纳百川 有容乃大 壁立千仞 无欲则刚</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#第一发展阶段-ANSI（-American-National-Standards-Institute）美国国家标准协会"><span class="nav-number">1.</span> <span class="nav-text">第一发展阶段 ANSI（ American National Standards Institute）美国国家标准协会</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ASCII-字符集"><span class="nav-number">1.1.</span> <span class="nav-text">ASCII 字符集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ISO-8859-1-扩展字符集"><span class="nav-number">1.2.</span> <span class="nav-text">ISO-8859-1 扩展字符集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#双字节字符集"><span class="nav-number">1.3.</span> <span class="nav-text">双字节字符集</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#GB2312"><span class="nav-number">1.3.1.</span> <span class="nav-text">GB2312</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GBK"><span class="nav-number">1.3.2.</span> <span class="nav-text">GBK</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#第二发展阶段-UCS（-ISO（国际标谁化组织）世界统一标准字符集）"><span class="nav-number">2.</span> <span class="nav-text">第二发展阶段 UCS（ ISO（国际标谁化组织）世界统一标准字符集）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Unicode-编码集"><span class="nav-number">3.</span> <span class="nav-text">Unicode 编码集</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#UCS-2-UTF-16-编码方案"><span class="nav-number">3.1.</span> <span class="nav-text">UCS-2/UTF-16 编码方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UTF-8-编码方案"><span class="nav-number">3.2.</span> <span class="nav-text">UTF-8 编码方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#带-BOM-的-UTF-8-（BOM——Byte-Order-Mark，就是字节序标记）"><span class="nav-number">3.3.</span> <span class="nav-text">带 BOM 的 UTF-8 （BOM——Byte Order Mark，就是字节序标记）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#保存“联通”乱码问题"><span class="nav-number">3.3.1.</span> <span class="nav-text">保存“联通”乱码问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络传输时候的编码为-ISO-8859-1"><span class="nav-number">3.4.</span> <span class="nav-text">网络传输时候的编码为 ISO-8859-1</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee&Da</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

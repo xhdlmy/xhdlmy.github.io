@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="泛型 泛型擦除概念：参数化类型  泛型的就是参数化类型。也就是说在泛型使用过程中，操作的数据类型被指定为一个形式参数，这种参数类型可以用在类、接口和方法中，分别被称为泛型类、泛型接口、泛型方法。一提到参数，最熟悉的就是定义方法时有形参，然后调用此方法时传递实参。泛型也是如此，就是将类型由原来的具体的类型参数化，类似于方法中的变量参数，此时类型也定义成参数形式，然后在使用/调用时传入具体的类型（类型">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JDK1.5 泛型">
+<meta property="og:url" content="https://xhdlmy.github.io/2018/10/17/2.2 泛型 Gson反序列化/index.html">
+<meta property="og:site_name" content="XL&#39;Blogs">
+<meta property="og:description" content="泛型 泛型擦除概念：参数化类型  泛型的就是参数化类型。也就是说在泛型使用过程中，操作的数据类型被指定为一个形式参数，这种参数类型可以用在类、接口和方法中，分别被称为泛型类、泛型接口、泛型方法。一提到参数，最熟悉的就是定义方法时有形参，然后调用此方法时传递实参。泛型也是如此，就是将类型由原来的具体的类型参数化，类似于方法中的变量参数，此时类型也定义成参数形式，然后在使用/调用时传入具体的类型（类型">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-18T06:11:14.390Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JDK1.5 泛型">
+<meta name="twitter:description" content="泛型 泛型擦除概念：参数化类型  泛型的就是参数化类型。也就是说在泛型使用过程中，操作的数据类型被指定为一个形式参数，这种参数类型可以用在类、接口和方法中，分别被称为泛型类、泛型接口、泛型方法。一提到参数，最熟悉的就是定义方法时有形参，然后调用此方法时传递实参。泛型也是如此，就是将类型由原来的具体的类型参数化，类似于方法中的变量参数，此时类型也定义成参数形式，然后在使用/调用时传入具体的类型（类型">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '2FIA5CRNSO',
+      apiKey: 'e4862257cee716da51316339f64f39d8',
+      indexName: 'dev_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"输入关键字搜索","hits_empty":"没有找到与 ${query} 相关内容","hits_stats":"搜索到 ${hits} 条相关内容"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://xhdlmy.github.io/2018/10/17/2.2 泛型 Gson反序列化/"/>
+
+
+
+
+
+  <title>JDK1.5 泛型 | XL'Blogs</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">XL'Blogs</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+			
+			
+			
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://xhdlmy.github.io/2018/10/17/2.2 泛型 Gson反序列化/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Lee&Da">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/kuiba_dacang.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="XL'Blogs">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JDK1.5 泛型</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-17T10:41:49+08:00">
+                2018-10-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="泛型-泛型擦除"><a href="#泛型-泛型擦除" class="headerlink" title="泛型 泛型擦除"></a>泛型 泛型擦除</h1><p>概念：参数化类型</p>
+<blockquote>
+<p>泛型的就是参数化类型。也就是说在泛型使用过程中，操作的数据类型被指定为一个形式参数，这种参数类型可以用在类、接口和方法中，分别被称为泛型类、泛型接口、泛型方法。一提到参数，最熟悉的就是定义方法时有形参，然后调用此方法时传递实参。泛型也是如此，就是将类型由原来的具体的类型参数化，类似于方法中的变量参数，此时类型也定义成参数形式，然后在使用/调用时传入具体的类型（类型实参）。</p>
+</blockquote>
+<pre><code>定义泛型方法： public &lt;T extends Human&gt; T wrap(T t) 形式参数， 
+调用时传入实际参数：Human human 或者 Human 的子类，例如 Solder solder（军人）
+</code></pre><p>JDK1.5 之所以要专门引入泛型，就是为了一个安全、方便。</p>
+<ul>
+<li>安全：运行期间不会出现类型转换错误，因为在编译期就可以判断，泛型是只有在编译期有效。</li>
+<li>方便：编译期避免了大量的强制类型转换。</li>
+</ul>
+<p>以上是直观的了解泛型，但深入了解泛型就必须明白什么是泛型擦除，泛型引入的原理。</p>
+<p><a href="https://blog.csdn.net/briblue/article/details/76736356" target="_blank" rel="noopener">泛型擦除</a> </p>
+<p>泛型只是在编译期间起作用，在运行时是不存在泛型的，也就是说字节码与非泛型写法是一致的，也就是为什么泛型可以向下兼容的原因。</p>
+<p>也就是说，泛型只是提供了不一样的编程体验，T 本身是参数化类型，可看作 T extends Object 一样，跟 Object 一样，可以代替任何数据类型。</p>
+<blockquote>
+<p>为了解决类型之间的继承关系，引入了通配符的概念，除了用 <t> 表示泛型外，还有 &lt;?&gt; 这种形式。？ 被称为通配符。 ? 不加限制就可以实实在在地理解为 Object 了。</t></p>
+</blockquote>
+<pre><code>public class Cache&lt;T&gt; {
+
+    T value; 
+
+    public Cache(T value){ this.value = value; }
+
+    public T getValue() { return value; } 
+
+    public void setValue(T value) { this.value = value; } 
+}
+</code></pre><p>将 T 换成 Object 没有任何问题，我们可以在运行时通过反射验证：</p>
+<pre><code>Cache&lt;String&gt; cache = new Cache&lt;String&gt;(&quot;balabala&quot;);
+Class cls = cache.getClass();
+System.out.println(&quot;cache class is:&quot;+cls.getName());
+Field[] fs = eclz.getDeclaredFields();
+for ( Field f:fs) { 
+    System.out.println(Field Type: &quot; + f.getType().getName()); 
+}
+</code></pre><p>打印结果是 <figure class="highlight plain"><figcaption><span>Type: java.lang.Object```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">将 Cache 换成带限制条件的，</span><br><span class="line"></span><br><span class="line">	public class Cache&lt;T extends String&gt; &#123;</span><br><span class="line"> </span><br><span class="line">		T value; </span><br><span class="line"></span><br><span class="line">		public Cache(T value)&#123; this.value = value; &#125;</span><br><span class="line"></span><br><span class="line">		public T getValue() &#123; return value; &#125; </span><br><span class="line"></span><br><span class="line">		public void setValue(T value) &#123; this.value = value; &#125; </span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">那么打印的结果就是 ```Field Type: java.lang.String</span><br></pre></td></tr></table></figure></p>
+<p>泛型在编译成 class 后，代码中的参数类型会全部改成 泛型上限的数据类型。</p>
+<p><strong>字节码只会保留原始类型（Cache），原始类型（raw type）就是擦除去了泛型信息后的类型。类型变量被擦除（crased），并使用其限定类型（无限定的变量用Object）替换。</strong></p>
+<h2 id="那么泛型是如何实现的呢？"><a href="#那么泛型是如何实现的呢？" class="headerlink" title="那么泛型是如何实现的呢？"></a><strong>那么泛型是如何实现的呢？</strong></h2><p><a href="https://blog.csdn.net/xiangwanpeng/article/details/77896340" target="_blank" rel="noopener">泛型的内部原理</a></p>
+<p>1、先检查，再编译</p>
+<p>既然说类型变量会在编译的时候擦除掉，那为什么我们往 <figure class="highlight plain"><figcaption><span>arrayList </span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">答曰：java编译器是通过先检查代码中泛型的类型，然后再进行类型擦除，在进行编译的。</span><br><span class="line"></span><br><span class="line">2、自动类型转换</span><br><span class="line"></span><br><span class="line">因为类型擦除的问题，所以所有的泛型类型变量最后都会被替换为原始类型。这样就引起了一个问题，既然都被替换为原始类型，那么为什么我们在获取的时候，不需要进行强制类型转换呢？看下ArrayList&lt;E&gt; 的 get() 方法：</span><br><span class="line"></span><br><span class="line">	E elementData(int var1) &#123;</span><br><span class="line">        return this.elementData[var1];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public E get(int var1) &#123;</span><br><span class="line">        this.rangeCheck(var1);</span><br><span class="line">        return this.elementData(var1);</span><br><span class="line">    &#125;</span><br><span class="line">                                                            </span><br><span class="line">可以看到在 return 时会进行强制类型转换。</span><br><span class="line"></span><br><span class="line">## 如何在运行时得到编译期泛型的信息？</span><br><span class="line"></span><br><span class="line">**如果要在运行时得到编译期泛型的信息，如何做到？**</span><br><span class="line"></span><br><span class="line">答： Java 为开发者提供了 Type 接口，可以得到所需的泛型信息。</span><br></pre></td></tr></table></figure></p>
+<pre><code>- Type 描述一切类型
+    - Class    类 (原始类型 raw type)
+    - ParameterizedType （参数化类型）Map&lt;Key, Value&gt; List&lt;? extends Number&gt;
+    - GenericArrayType （泛型数组类型） List&lt;String&gt;[] 是， String[] strings 否
+    - TypeVariable （泛型变量 K V）
+    - WildcardType (通配符) ? extends Number
+</code></pre><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">也就是说，如果泛型信息在运行中擦除了，但是实现了 ParameterizedType 接口，会通过 getActualTypeArguments() 存起来。</span><br><span class="line"></span><br><span class="line"># Gson</span><br><span class="line"></span><br><span class="line">## Gson 关于泛型的处理</span><br><span class="line"></span><br><span class="line">&gt; Gson 是 Google 发布的 lib，主要是为了方便将 Java 对象与 json 格式数据相互转化。Java对象序列化至json格式数据，json格式数据反序列化至Java对象。</span><br><span class="line"></span><br><span class="line">1. JDK 1.5 新增 Type 的子接口 ParameterizedType</span><br></pre></td></tr></table></figure>
+<pre><code>    public interface ParameterizedType extends Type {
+
+        Type[] getActualTypeArguments(); // 该方法就是获取参数化类型
+
+        Type getRawType();
+
+        Type getOwnerType();
+    }
+
+    Impl 实现方法可能
+
+    public static ParameterizedType type(final Class raw, final Type... args){
+
+        return new ParameterizedType() {
+
+            @Override
+            public Type[] getActualTypeArguments() {
+                return args;
+            }
+
+            @Override
+            public Type getRawType() {
+                return raw;
+            }
+
+            // 关注不多 Map.Entry&lt;K, V&gt;
+            @Override
+            public Type getOwnerType() {
+                return null;
+            }
+        };
+    }
+
+
+```
+</code></pre><p><strong>即使在运行过程中，泛型信息被擦除了，但也将泛型信息存入了 getActualTypeArguments() 方法的实现中。</strong></p>
+<ol start="2">
+<li>Gson 包提供 TypeToken 来获取泛型信息</li>
+</ol>
+<p>例如：BaseResp 格式统一有 error，不同的在于 T data</p>
+<pre><code>public class BaseResp&lt;T&gt; implements Serializable {
+    public boolean error;
+    public T results;
+}
+</code></pre><p>那么可以通过 Gson 反序列化这么解析得到 T 的对象：</p>
+<pre><code>BaseResp&lt;T&gt; resp = sGson.fromJson(json, new TypeToken&lt;BaseResp&lt;T&gt;&gt;(){}.getType()); // 匿名内部类
+</code></pre><p>那么 </p>
+<pre><code>protected TypeToken() {
+    this.type = getSuperclassTypeParameter(getClass());
+    this.rawType = (Class&lt;? super T&gt;) $Gson$Types.getRawType(type);
+    this.hashCode = type.hashCode();
+  }
+
+static Type getSuperclassTypeParameter(Class&lt;?&gt; subclass) {
+    // TypeToken&lt;BaseResp&lt;T&gt;&gt;
+    Type superclass = subclass.getGenericSuperclass();
+    if (superclass instanceof Class) {
+      throw new RuntimeException(&quot;Missing type parameter.&quot;);
+    }
+    ParameterizedType parameterized = (ParameterizedType) superclass;
+    return $Gson$Types.canonicalize(parameterized.getActualTypeArguments()[0]); // BaseResp&lt;T&gt;
+  }
+</code></pre><p>$Gson$Types </p>
+<pre><code>public static Type canonicalize(Type type) {
+    if(type instanceof Class) {
+        Class&lt;?&gt; c = (Class)type;
+        return (Type)(c.isArray()?new $Gson$Types.GenericArrayTypeImpl(canonicalize(c.getComponentType())):c);
+    } else if(type instanceof ParameterizedType) {
+        ParameterizedType p = (ParameterizedType)type;
+        return new $Gson$Types.ParameterizedTypeImpl(p.getOwnerType(), p.getRawType(), p.getActualTypeArguments());
+    } else if(type instanceof GenericArrayType) {
+        GenericArrayType g = (GenericArrayType)type;
+        return new $Gson$Types.GenericArrayTypeImpl(g.getGenericComponentType());
+    } else if(type instanceof WildcardType) {
+        WildcardType w = (WildcardType)type;
+        return new $Gson$Types.WildcardTypeImpl(w.getUpperBounds(), w.getLowerBounds());
+    } else {
+        return type;
+    }
+}
+</code></pre><p>可以看出 type 为 BaseResp<t>，rawType 为 BaseResp，其中 $Gson$Types 包含了一个内部类 ParameterizedType。</t></p>
+<p>在网络请求过程中，例如创建了 RxRequest&lt;List<meizi>&gt; request，那么可以通过 request 得到传入的 List<meizi> 类型信息，那么就可以在反序列化中 new TypeToken&lt;BaseResp&lt;List<meizi>&gt;&gt;(){}.getType()； 然后 Gson 就明白需要将 json 格式数据转为 List<meizi> 集合对象。</meizi></meizi></meizi></meizi></p>
+<h2 id="Gson-的工作原理"><a href="#Gson-的工作原理" class="headerlink" title="Gson 的工作原理"></a>Gson 的工作原理</h2><ul>
+<li>Gson fromJson() 对应的底层方法是 TypeAdapter read(JsonReader) </li>
+<li>Gson toJson() 对应的底层方法是 TypeAdapter write(JsonReader, T) </li>
+</ul>
+<p>fromJson 的重载方法：</p>
+<pre><code>public &lt;T&gt; T fromJson(JsonReader reader, Type typeOfT)
+    ...
+    TypeToken&lt;T&gt; typeToken = (TypeToken&lt;T&gt;) TypeToken.get(typeOfT);
+    TypeAdapter&lt;T&gt; typeAdapter = getAdapter(typeToken);
+    T object = typeAdapter.read(reader);
+    return object;
+    ...
+}
+</code></pre><p>TypeAdapter<t> 是序列化/反序列化 的地方，例如 已知 T：</t></p>
+<pre><code>public static final class Adapter&lt;T&gt; extends TypeAdapter&lt;T&gt; {
+private final ObjectConstructor&lt;T&gt; constructor;
+private final Map&lt;String, BoundField&gt; boundFields;
+
+Adapter(ObjectConstructor&lt;T&gt; constructor, Map&lt;String, BoundField&gt; boundFields) {
+  this.constructor = constructor;
+  this.boundFields = boundFields;
+}
+
+@Override public T read(JsonReader in) throws IOException {
+  if (in.peek() == JsonToken.NULL) {
+    in.nextNull();
+    return null;
+  }
+
+  // 这里就是通过反射来创建对象的。
+  T instance = constructor.construct();
+
+  try {
+    in.beginObject();
+    while (in.hasNext()) {
+      String name = in.nextName();
+      BoundField field = boundFields.get(name);
+      if (field == null || !field.deserialized) {
+        in.skipValue();
+      } else {
+        field.read(in, instance);
+      }
+    }
+  } catch (IllegalStateException e) {
+    throw new JsonSyntaxException(e);
+  } catch (IllegalAccessException e) {
+    throw new AssertionError(e);
+  }
+  in.endObject();
+  return instance;
+}
+</code></pre>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/08/2.1 反射/" rel="next" title="Java Reflection （反射机制）">
+                <i class="fa fa-chevron-left"></i> Java Reflection （反射机制）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/10/18/2.3 注解/" rel="prev" title="注解">
+                注解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/kuiba_dacang.png"
+                alt="Lee&Da" />
+            
+              <p class="site-author-name" itemprop="name">Lee&Da</p>
+              <p class="site-description motion-element" itemprop="description">海纳百川 有容乃大 壁立千仞 无欲则刚</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#泛型-泛型擦除"><span class="nav-number">1.</span> <span class="nav-text">泛型 泛型擦除</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#那么泛型是如何实现的呢？"><span class="nav-number">1.1.</span> <span class="nav-text">那么泛型是如何实现的呢？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Gson-的工作原理"><span class="nav-number">1.2.</span> <span class="nav-text">Gson 的工作原理</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee&Da</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

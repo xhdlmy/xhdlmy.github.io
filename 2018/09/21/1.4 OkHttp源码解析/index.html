@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="#OkHttp源码解析 他山之石 整个流程：  OkHttp是直接对Socket进行封装。 OkHttp实现Http协议。 那么首要解决的问题就是如何构建Request请求？如何获取服务器返回的响应Response？ 而后如何发送请求，如何接收响应？ 在Request到Response的转换过程中，涉及到http协议的建立连接，连接复用，缓存处理以及cookie处理等问题。(拦截器) ##1. 请">
+<meta property="og:type" content="article">
+<meta property="og:title" content="XL&#39;Blogs">
+<meta property="og:url" content="https://xhdlmy.github.io/2018/09/21/1.4 OkHttp源码解析/index.html">
+<meta property="og:site_name" content="XL&#39;Blogs">
+<meta property="og:description" content="#OkHttp源码解析 他山之石 整个流程：  OkHttp是直接对Socket进行封装。 OkHttp实现Http协议。 那么首要解决的问题就是如何构建Request请求？如何获取服务器返回的响应Response？ 而后如何发送请求，如何接收响应？ 在Request到Response的转换过程中，涉及到http协议的建立连接，连接复用，缓存处理以及cookie处理等问题。(拦截器) ##1. 请">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://xhdlmy.github.io/2018/09/21/1.4%20OkHttp源码解析/img/okhttp.png">
+<meta property="og:image" content="https://xhdlmy.github.io/2018/09/21/1.4%20OkHttp源码解析/img/okin.png">
+<meta property="og:updated_time" content="2018-09-21T03:23:38.935Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="XL&#39;Blogs">
+<meta name="twitter:description" content="#OkHttp源码解析 他山之石 整个流程：  OkHttp是直接对Socket进行封装。 OkHttp实现Http协议。 那么首要解决的问题就是如何构建Request请求？如何获取服务器返回的响应Response？ 而后如何发送请求，如何接收响应？ 在Request到Response的转换过程中，涉及到http协议的建立连接，连接复用，缓存处理以及cookie处理等问题。(拦截器) ##1. 请">
+<meta name="twitter:image" content="https://xhdlmy.github.io/2018/09/21/1.4%20OkHttp源码解析/img/okhttp.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '2FIA5CRNSO',
+      apiKey: 'e4862257cee716da51316339f64f39d8',
+      indexName: 'dev_blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"输入关键字搜索","hits_empty":"没有找到与 ${query} 相关内容","hits_stats":"搜索到 ${hits} 条相关内容"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://xhdlmy.github.io/2018/09/21/1.4 OkHttp源码解析/"/>
+
+
+
+
+
+  <title> | XL'Blogs</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">XL'Blogs</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+			
+			
+			
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://xhdlmy.github.io/2018/09/21/1.4 OkHttp源码解析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Lee&Da">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/kuiba_dacang.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="XL'Blogs">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline"></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-21T17:59:57+08:00">
+                2018-09-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>#OkHttp源码解析</p>
+<p><a href="http://www.jianshu.com/p/6ffde18fb034#" target="_blank" rel="noopener">他山之石</a></p>
+<p>整个流程：</p>
+<p><img src="img/okhttp.png" alt="icon"></p>
+<p>OkHttp是直接对Socket进行封装。</p>
+<p>OkHttp实现Http协议。</p>
+<p>那么首要解决的问题就是如何构建Request请求？如何获取服务器返回的响应Response？</p>
+<p>而后如何发送请求，如何接收响应？</p>
+<p>在Request到Response的转换过程中，涉及到http协议的建立连接，连接复用，缓存处理以及cookie处理等问题。(拦截器)</p>
+<p>##1. 请求与响应的封装</p>
+<p>###Request</p>
+<p>1、请求封装的组成</p>
+<p>如果熟悉Http协议就会知道，请求报文由请求头和请求体组成，那么我们就应该对Http协议进行封装（封装就是将Http一些的内容：请求头、请求体等封装到一个类中）</p>
+<pre><code>public final class Request {
+  final HttpUrl url;
+  final String method;
+  final Headers headers;
+  final RequestBody body;
+  final Object tag;
+  ...
+}
+
+tag是一个请求的标识，可以在后续的过程中终止或取消这个请求。
+
+Headers类是一个工具类，统一管理请求和响应的头部信息，其内部结构就是一个nameAndValue的字符串数组保存头部信息，保存形式为一个键值紧跟一个value值， 熟悉Android中的ArrayMap数据结构的同学应该对这种实现方式比较了解。
+
+public abstract class RequestBody {
+  /** Returns the Content-Type header for this body. */
+  public abstract MediaType contentType();
+  /**
+   * Returns the number of bytes that will be written to {@code out} in a call to {@link #writeTo},
+   * or -1 if that count is unknown.
+   */
+  public long contentLength() throws IOException {
+    return -1;
+  }    
+  /** Writes the content of this request to {@code out}. */
+  public abstract void writeTo(BufferedSink sink) throws IOException;
+  ...
+}
+
+contentType 就是封装了Content-Type，例如text/html
+
+writeTo方法：指定请求体需要写入的内容
+</code></pre><blockquote>
+<p>Okio：这里的Sink和后面遇到的Source是属于Okio的内容，也就是square公司封装的一个IO框架，暂时可以将他们分别理解为OutputStream和InputStream。</p>
+</blockquote>
+<pre><code>request.requsetBody().writeTo(Okio.sink(socket.outputStream()))， 类似与这种形式，从而完成将请求体内容写入到socket中。
+</code></pre><p>2、请求封装的构建过程</p>
+<p>使用建造者模式，通过Builder设置不同参数。</p>
+<pre><code>Request request = new Request.Builder().get().url(url).build();
+</code></pre><p>###Response</p>
+<p>Response的封装与之类似，但是获取响应必然与缓存有关，这里先省略与缓存相关的部分（将在第三篇文章中介绍）， 只是简单介绍一些响应的获取构建以及响应体的内容提取。</p>
+<pre><code>public final class Response implements Closeable {
+  final Request request;
+  final int code;
+  final String message;
+  final Handshake handshake;
+  final Headers headers;
+  final ResponseBody body;
+
+  Response(Builder builder) {
+  ...
+  }
+}
+
+public abstract class ResponseBody implements Closeable {
+  /** Multiple calls to {@link #charStream()} must return the same instance. */
+  private Reader reader;
+
+  public abstract MediaType contentType();    
+  /**
+   * Returns the number of bytes in that will returned by {@link #bytes}, or {@link #byteStream}, or
+   * -1 if unknown.
+   */
+  public abstract long contentLength();
+  public abstract BufferedSource source();
+...
+}
+</code></pre><blockquote>
+<p>与Request类似，简历Socket连接的时候，肯定会有</p>
+</blockquote>
+<pre><code>response.body().source(Okio.source(socket.inputStream()))
+</code></pre><p>ResponseBody responseBody = response.body();</p>
+<pre><code>responseBody提供了byteStream();返回一个输入流
+</code></pre><p>对于ResponseBody说明两个问题</p>
+<p>一是每个ResponseBody的背后都是一个socket或者文件资源作为数据后备，因此在使用完以后需要关闭资源，不然会造成浪费。</p>
+<p>二是，ResponseBody应该只能使用一次， 因为不能将响应完全缓存到内存中，因此需要我们通过byte()或者string一次性将响应体加载到内存使用，或者source()和byteStream()方法以流的方式使用，使用完成以后需要关闭，不能第二次使用。</p>
+<p>除此以外我们还需要注意的是，网络通信都是字节流，那么就会涉及到字符编解码的问题，即charset问题， 这个问题这里不再介绍，Java的I/O库对此有处理，Okio同样也有处理，有兴趣的可以自行查看。</p>
+<p>##2、请求过程的封装Call</p>
+<p>它是对request的封装，也是对一次请求过程的封装，因为从call中我们可以获取响应，因此可以将其看做是一次请求过程的封装，期间请求的过程对于用户即使用okhttp的程序员来说是透明的。</p>
+<p>下面看一下Call接口，</p>
+<pre><code>public interface Call extends Cloneable {
+  Request request();
+  Response execute();同步请求    
+  void enqueue(Callback responseCallback);    异步请求
+  void cancel();    
+  boolean isExecuted();
+  boolean isCanceled();
+  ...
+}
+</code></pre><p>真正的实现类：</p>
+<pre><code>final class RealCall implements Call {
+  final OkHttpClient client;
+  final RetryAndFollowUpInterceptor retryAndFollowUpInterceptor;
+
+  /** The application&apos;s original request unadulterated by redirects or auth headers. */
+  final Request originalRequest;
+  final boolean forWebSocket;
+
+  // Guarded by this.
+  private boolean executed;
+
+  RealCall(OkHttpClient client, Request originalRequest, boolean forWebSocket) {
+    this.client = client;
+    this.originalRequest = originalRequest;
+    this.forWebSocket = forWebSocket;
+    this.retryAndFollowUpInterceptor = new RetryAndFollowUpInterceptor(client, forWebSocket);
+  }
+
+  @Override public Request request() {
+    return originalRequest;
+  }
+
+  //同步执行方法
+  @Override public Response execute() throws IOException {
+    synchronized (this) {
+      if (executed) throw new IllegalStateException(&quot;Already Executed&quot;);
+      executed = true;
+    }
+    captureCallStackTrace();
+    try {
+     //仅仅是标识该call对象已经开始执行
+      client.dispatcher().executed(this);
+      //真正地去执行网络请求
+      Response result = getResponseWithInterceptorChain();
+      if (result == null) throw new IOException(&quot;Canceled&quot;);
+      return result;
+    } finally {
+      //标识该call对象的请求过程结束
+      client.dispatcher().finished(this);
+    }
+  }
+
+  ...
+
+ //异步执行方法
+  @Override public void enqueue(Callback responseCallback) {
+    synchronized (this) {
+      if (executed) throw new IllegalStateException(&quot;Already Executed&quot;);
+      executed = true;
+    }
+    captureCallStackTrace();
+    client.dispatcher().enqueue(new AsyncCall(responseCallback));
+  }
+  ...
+</code></pre><p>即同同步方法网络请求是通过getResponseWithInterceptorChain方法获取的响应， 涉及到dispatcher的部分只是设置标志位而已（为了与异步执行统一处理）</p>
+<pre><code>final class AsyncCall extends NamedRunnable {
+  private final Callback responseCallback;
+
+  AsyncCall(Callback responseCallback) {
+    super(&quot;OkHttp %s&quot;, redactedUrl());
+    this.responseCallback = responseCallback;
+  }
+
+  ...
+
+  @Override protected void execute() {
+    boolean signalledCallback = false;
+    try {
+      Response response = getResponseWithInterceptorChain();
+      if (retryAndFollowUpInterceptor.isCanceled()) {
+        signalledCallback = true;
+        responseCallback.onFailure(RealCall.this, new IOException(&quot;Canceled&quot;));
+      } else {
+        signalledCallback = true;
+        responseCallback.onResponse(RealCall.this, response);
+      }
+    } catch (IOException e) {
+      if (signalledCallback) {
+        // Do not signal the callback twice!
+        Platform.get().log(INFO, &quot;Callback failure for &quot; + toLoggableString(), e);
+      } else {
+        responseCallback.onFailure(RealCall.this, e);
+      }
+    } finally {
+      client.dispatcher().finished(this);
+    }
+  }
+}
+</code></pre><p>同样异步执行也是将执行的getResponseWithInterceptorChain方法获取的网络请求。</p>
+<p>Call接口的取消操作都交由retryAndFollowUpInterceptor来处理。</p>
+<p>成功回调：</p>
+<pre><code>responseCallback.onResponse(RealCall.this, response);
+</code></pre><p>失败回调：</p>
+<pre><code>responseCallback.onFailure(RealCall.this, e);
+</code></pre><p>cancel回调：</p>
+<pre><code>responseCallback.onFailure(RealCall.this, new IOException(&quot;Canceled&quot;));
+</code></pre><p>##3、异步请求：任务队列管理与调度</p>
+<p><strong>OkHttp的任务管理和调度都是通过Dispatcher类来完成的!</strong></p>
+<p>##4、Response getResponseWithInterceptorChain()核心</p>
+<pre><code>private Response getResponseWithInterceptorChain() throws IOException {
+  // Build a full stack of interceptors.
+  List&lt;Interceptor&gt; interceptors = new ArrayList&lt;&gt;(); 
+  interceptors.addAll(client.interceptors());     // client.addInterceptor(Interceptor interceptor) 
+  interceptors.add(retryAndFollowUpInterceptor);
+  interceptors.add(new BridgeInterceptor(client.cookieJar()));
+  interceptors.add(new CacheInterceptor(client.internalCache()));
+  interceptors.add(new ConnectInterceptor(client));
+  if (!retryAndFollowUpInterceptor.isForWebSocket()) {
+    interceptors.addAll(client.networkInterceptors());
+  }
+  interceptors.add(new CallServerInterceptor(
+      retryAndFollowUpInterceptor.isForWebSocket()));
+
+  Interceptor.Chain chain = new RealInterceptorChain(
+      interceptors, null, null, null, 0, originalRequest);
+  return chain.proceed(originalRequest);
+}
+</code></pre><p>Interceptor 拦截器 拦截并修改 Request/Response 请求头或者响应头</p>
+<pre><code>Response intercept(Interceptor.Chain chain)
+</code></pre><p>Interceptor.Chain 真正将 Request 转化成 Response</p>
+<pre><code>Response proceed(Request request)
+</code></pre><p>一切从 getResponseWithInterceptorChain 方法开始：</p>
+<pre><code>第一个 Interceptor.Chain chain = new ReaiInterceptorChain(index: 0, request: originalRequest);
+返回的 Response 为 chain.proceed(originalRequest);
+</code></pre><p>ReaiInterceptorChain 的 proceed 方法就是先 intercept 一级一级的拦截处理</p>
+<pre><code>// Call the next interceptor in the chain.
+RealInterceptorChain next = new RealInterceptorChain(interceptors, streamAllocation, httpCodec,
+    connection, index + 1, request, call, eventListener, connectTimeout, readTimeout,
+    writeTimeout);
+Interceptor interceptor = interceptors.get(index);
+Response response = interceptor.intercept(next);
+</code></pre><p>不同的 Interceptor 的 intercept 方法不同：</p>
+<pre><code>Response response = retryAndFollowUpInterceptor.intercept(next)
+</code></pre><p>但 intercept 方法中一定有类似 </p>
+<pre><code>response = realChain.proceed(request);
+</code></pre><p>也就是一层层连在一起了：</p>
+<pre><code>chain1.proceed(request1) -&gt; interceptor1.intercept(chain2) -&gt; chain2.proceed(request2) -&gt; interceptor2.intercept(chain3) ...
+</code></pre><p>先一层层下去拦截，到最后一层了，再一层层结束方法返回，最后得到一个 Response </p>
+<h3 id="核心思想："><a href="#核心思想：" class="headerlink" title="核心思想："></a>核心思想：</h3><p>Interceptor 是 OkHttp 最核心的一个东西，不要误以为它只负责拦截请求进行一些额外的处理（例如 cookie），实际上它把实际的网络请求、缓存、透明压缩等功能都统一了起来，每一个功能都只是一个 Interceptor，它们再连接成一个 Interceptor.Chain，环环相扣，最终圆满完成一次网络请求。</p>
+<p><img src="img/okin.png" alt="icon"></p>
+<ul>
+<li>在配置 OkHttpClient 时设置的 interceptors；</li>
+<li>负责失败重试以及重定向的 RetryAndFollowUpInterceptor；</li>
+<li>负责把用户构造的请求转换为发送到服务器的请求、把服务器返回的响应转换为用户友好的响应的 BridgeInterceptor；</li>
+<li>负责读取缓存直接返回、更新缓存的 CacheInterceptor；</li>
+<li>负责和服务器建立连接的 ConnectInterceptor；</li>
+<li>配置 OkHttpClient 时设置的 networkInterceptors；</li>
+<li>负责向服务器发送请求数据、从服务器读取响应数据的 CallServerInterceptor。</li>
+</ul>
+<p><strong>责任链模式在这个 Interceptor 链条中得到了很好的实践</strong></p>
+<h4 id="RetryAndFollowUpInterceptor-重试-重定向"><a href="#RetryAndFollowUpInterceptor-重试-重定向" class="headerlink" title="RetryAndFollowUpInterceptor 重试 重定向"></a>RetryAndFollowUpInterceptor 重试 重定向</h4><p>while(true) 循环，然后通过 followUpCount++ 不超过 20 次，不然就抛出异常。</p>
+<h4 id="BridgeInterceptor-CookieJar"><a href="#BridgeInterceptor-CookieJar" class="headerlink" title="BridgeInterceptor CookieJar"></a>BridgeInterceptor CookieJar</h4>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/20/千里之行，始于足下/" rel="next" title="千里之行 始于足下">
+                <i class="fa fa-chevron-left"></i> 千里之行 始于足下
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/09/25/History 历史是一个圆/" rel="prev" title="历史是一个圆吗？">
+                历史是一个圆吗？ <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/kuiba_dacang.png"
+                alt="Lee&Da" />
+            
+              <p class="site-author-name" itemprop="name">Lee&Da</p>
+              <p class="site-description motion-element" itemprop="description">海纳百川 有容乃大 壁立千仞 无欲则刚</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#核心思想："><span class="nav-number">1.</span> <span class="nav-text">核心思想：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#RetryAndFollowUpInterceptor-重试-重定向"><span class="nav-number">1.1.</span> <span class="nav-text">RetryAndFollowUpInterceptor 重试 重定向</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#BridgeInterceptor-CookieJar"><span class="nav-number">1.2.</span> <span class="nav-text">BridgeInterceptor CookieJar</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee&Da</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
